@@ -52,30 +52,47 @@ function SiteHeader() {
 function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-border">
-      <div className="absolute inset-0 nova-grid-bg opacity-60" />
-      <div className="absolute inset-x-0 -top-40 h-[400px] bg-[radial-gradient(ellipse_at_top,oklch(0.82_0.14_200/0.18),transparent_60%)]" />
-      <div className="relative mx-auto max-w-5xl px-4 sm:px-6 py-20 sm:py-28 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted-foreground mb-6">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-          New: Nova OS automation systems are live
+      <div className="absolute inset-0 nova-grid-bg opacity-70" />
+      <div className="absolute inset-0 nova-scanlines opacity-40 pointer-events-none" />
+      <div className="absolute inset-x-0 -top-40 h-[420px] bg-[radial-gradient(ellipse_at_top,oklch(0.84_0.16_195/0.18),transparent_60%)]" />
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-20 sm:py-28">
+        {/* Status bar */}
+        <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80 mb-10">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[color:var(--success)] nova-live-dot" /> SYS · ONLINE</span>
+            <span className="opacity-50 hidden sm:inline">·</span>
+            <span className="hidden sm:inline">OPS_v1.0</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline">SECTOR · FOUNDER</span>
+            <span className="opacity-50 hidden sm:inline">·</span>
+            <span>16 MODULES</span>
+          </div>
         </div>
-        <h1 className="text-4xl sm:text-6xl font-semibold tracking-tight leading-[1.05]">
-          AI operations for <br className="hidden sm:inline" />
-          <span className="text-primary">founders who ship.</span>
-        </h1>
-        <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-          10 founder tools to launch your offer. 6 automation systems to run the business.
-          One operator-grade platform.
-        </p>
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Button asChild size="lg">
-            <Link to="/signup">Start free <ArrowRight className="h-4 w-4 ml-1" /></Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link to="/demo">See how it works</Link>
-          </Button>
+
+        <div className="text-center">
+          <div className="inline-flex items-center gap-2 rounded-sm border border-primary/30 bg-primary/5 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-primary mb-6">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary nova-live-dot" />
+            New · Nova OS systems · LIVE
+          </div>
+          <h1 className="text-4xl sm:text-6xl font-semibold tracking-tight leading-[1.05]">
+            Mission control for <br className="hidden sm:inline" />
+            <span className="text-primary">founders who ship.</span>
+          </h1>
+          <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+            10 founder tools to launch your offer. 6 automation systems to run the business.
+            One operator-grade console.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button asChild size="lg">
+              <Link to="/signup">Initiate <ArrowRight className="h-4 w-4 ml-1" /></Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/demo">View console</Link>
+            </Button>
+          </div>
+          <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70">No credit card · 2-min boot sequence</p>
         </div>
-        <p className="mt-4 text-xs text-muted-foreground">No credit card required · 2-minute setup</p>
       </div>
     </section>
   );
