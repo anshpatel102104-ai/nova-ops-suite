@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader, SectionHeader } from "@/components/app/PageHeader";
 import { StatusPill } from "@/components/app/StatusPill";
-import { Button } from "@/components/app/../ui/button";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
   ArrowRight, Sparkles, CheckCircle2, Circle, Activity as ActivityIcon,
