@@ -7,12 +7,13 @@
 @theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-2xl: calc(var(--radius) + 10px);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -32,6 +33,7 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-signal: var(--signal);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -47,59 +49,60 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* Nova OPS — dark by default. Linear/Vercel premium aesthetic. */
+/* Nova OPS — Mission Control. Near-black ops console. */
 :root {
-  --radius: 0.625rem;
+  --radius: 0.375rem;
 
-  /* base near-black w/ navy hint */
-  --background: oklch(0.16 0.02 265);
-  --foreground: oklch(0.98 0.005 240);
+  /* deep ops black */
+  --background: oklch(0.10 0.012 250);
+  --foreground: oklch(0.96 0.008 220);
 
-  --surface: oklch(0.19 0.02 265);
-  --surface-elevated: oklch(0.22 0.022 265);
+  --surface: oklch(0.13 0.014 250);
+  --surface-elevated: oklch(0.16 0.016 250);
 
-  --card: oklch(0.19 0.02 265);
-  --card-foreground: oklch(0.98 0.005 240);
+  --card: oklch(0.13 0.014 250);
+  --card-foreground: oklch(0.96 0.008 220);
 
-  --popover: oklch(0.20 0.02 265);
-  --popover-foreground: oklch(0.98 0.005 240);
+  --popover: oklch(0.14 0.014 250);
+  --popover-foreground: oklch(0.96 0.008 220);
 
-  /* electric teal/cyan accent */
-  --primary: oklch(0.82 0.14 200);
-  --primary-foreground: oklch(0.16 0.02 265);
+  /* signal cyan — radar / HUD */
+  --primary: oklch(0.84 0.16 195);
+  --primary-foreground: oklch(0.10 0.012 250);
 
-  --secondary: oklch(0.24 0.02 265);
-  --secondary-foreground: oklch(0.98 0.005 240);
+  --secondary: oklch(0.18 0.016 250);
+  --secondary-foreground: oklch(0.96 0.008 220);
 
-  --muted: oklch(0.24 0.02 265);
-  --muted-foreground: oklch(0.68 0.015 250);
+  --muted: oklch(0.18 0.016 250);
+  --muted-foreground: oklch(0.62 0.018 230);
 
-  --accent: oklch(0.82 0.14 200);
-  --accent-foreground: oklch(0.16 0.02 265);
+  --accent: oklch(0.84 0.16 195);
+  --accent-foreground: oklch(0.10 0.012 250);
 
-  --destructive: oklch(0.65 0.20 25);
+  /* alert tones — amber + signal red */
+  --destructive: oklch(0.66 0.22 22);
   --destructive-foreground: oklch(0.98 0.005 240);
-  --success: oklch(0.72 0.15 155);
-  --warning: oklch(0.80 0.15 80);
+  --success: oklch(0.78 0.18 150);
+  --warning: oklch(0.82 0.16 75);
+  --signal: oklch(0.84 0.16 195);
 
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.82 0.14 200 / 50%);
+  --border: oklch(1 0 0 / 7%);
+  --input: oklch(1 0 0 / 9%);
+  --ring: oklch(0.84 0.16 195 / 50%);
 
-  --sidebar: oklch(0.14 0.02 265);
-  --sidebar-foreground: oklch(0.92 0.005 240);
-  --sidebar-primary: oklch(0.82 0.14 200);
-  --sidebar-primary-foreground: oklch(0.16 0.02 265);
-  --sidebar-accent: oklch(0.22 0.02 265);
-  --sidebar-accent-foreground: oklch(0.98 0.005 240);
-  --sidebar-border: oklch(1 0 0 / 6%);
-  --sidebar-ring: oklch(0.82 0.14 200 / 40%);
+  --sidebar: oklch(0.085 0.012 250);
+  --sidebar-foreground: oklch(0.90 0.008 220);
+  --sidebar-primary: oklch(0.84 0.16 195);
+  --sidebar-primary-foreground: oklch(0.10 0.012 250);
+  --sidebar-accent: oklch(0.16 0.016 250);
+  --sidebar-accent-foreground: oklch(0.98 0.005 220);
+  --sidebar-border: oklch(1 0 0 / 5%);
+  --sidebar-ring: oklch(0.84 0.16 195 / 40%);
 }
 
 .dark {
-  /* same — app is dark-only */
-  --background: oklch(0.16 0.02 265);
-  --foreground: oklch(0.98 0.005 240);
+  --background: oklch(0.10 0.012 250);
+  --foreground: oklch(0.96 0.008 220);
 }
 
 @layer base {
@@ -111,7 +114,7 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    font-feature-settings: "cv11", "ss01";
+    font-feature-settings: "cv11", "ss01", "ss03";
   }
   ::selection {
     background-color: color-mix(in oklab, var(--primary) 35%, transparent);
@@ -120,24 +123,72 @@
 }
 
 @layer utilities {
+  .font-mono { font-family: var(--font-mono); }
+
+  /* Mission control grid background */
   .nova-grid-bg {
     background-image:
-      radial-gradient(circle at 1px 1px, oklch(1 0 0 / 4%) 1px, transparent 0);
-    background-size: 24px 24px;
+      linear-gradient(to right, oklch(1 0 0 / 3.5%) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 3.5%) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .nova-dot-bg {
+    background-image:
+      radial-gradient(circle at 1px 1px, oklch(1 0 0 / 6%) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+  /* Subtle scanline overlay for HUD feel */
+  .nova-scanlines {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 2px,
+      oklch(1 0 0 / 1.5%) 2px,
+      oklch(1 0 0 / 1.5%) 3px
+    );
   }
   .nova-glow {
-    box-shadow: 0 0 60px -10px color-mix(in oklab, var(--primary) 40%, transparent);
+    box-shadow: 0 0 24px -4px color-mix(in oklab, var(--primary) 55%, transparent);
   }
   .nova-card {
     background-color: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
   }
   .nova-card-hover {
-    transition: border-color .2s ease, background-color .2s ease, transform .2s ease;
+    transition: border-color .15s ease, background-color .15s ease;
   }
   .nova-card-hover:hover {
-    border-color: color-mix(in oklab, var(--primary) 40%, var(--border));
+    border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
     background-color: var(--surface-elevated);
+  }
+  /* Corner brackets — HUD frame */
+  .nova-bracket {
+    position: relative;
+  }
+  .nova-bracket::before,
+  .nova-bracket::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-color: var(--primary);
+    pointer-events: none;
+  }
+  .nova-bracket::before {
+    top: -1px; left: -1px;
+    border-top: 1px solid; border-left: 1px solid;
+  }
+  .nova-bracket::after {
+    bottom: -1px; right: -1px;
+    border-bottom: 1px solid; border-right: 1px solid;
+  }
+  /* Pulsing live dot */
+  @keyframes nova-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 60%, transparent); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 0%, transparent); }
+  }
+  .nova-live-dot {
+    animation: nova-pulse 2s ease-in-out infinite;
   }
 }
