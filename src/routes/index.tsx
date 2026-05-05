@@ -33,10 +33,8 @@ function SiteHeader() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 h-14 flex items-center justify-between">
         <Logo />
         <nav className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
-          <Link to="/launchpad" className="hover:text-foreground">LaunchPad</Link>
-          <Link to="/nova-os" className="hover:text-foreground">Nova OS</Link>
-          <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
           <Link to="/demo" className="hover:text-foreground">How it works</Link>
+          <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
         </nav>
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost" size="sm">
