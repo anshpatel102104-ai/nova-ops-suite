@@ -19,8 +19,8 @@ export function AppTopbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-30 h-14 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-full items-center gap-3 px-4 md:px-6">
+    <header className="sticky top-0 z-30 h-12 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+      <div className="flex h-full items-center gap-2 px-3 md:px-4">
         {/* Mobile nav */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
@@ -71,11 +71,17 @@ export function AppTopbar() {
         <div className="flex-1 md:hidden" />
 
         {/* Plan badge */}
+        <div className="hidden md:flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/80 mr-1">
+          <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[color:var(--success)] nova-live-dot" /> OPS</span>
+          <span className="opacity-40">·</span>
+          <span>{new Date().toUTCString().slice(17, 22)} UTC</span>
+        </div>
+
         <Link
           to="/app/billing"
-          className="hidden sm:inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium hover:border-primary/40 transition-colors"
+          className="hidden sm:inline-flex items-center gap-1.5 rounded-sm border border-primary/30 bg-primary/5 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-primary hover:bg-primary/10 transition-colors"
         >
-          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+          <span className="h-1.5 w-1.5 rounded-full bg-primary nova-live-dot" />
           {plan.name}
         </Link>
 
