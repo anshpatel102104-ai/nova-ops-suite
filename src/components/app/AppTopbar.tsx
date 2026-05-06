@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Bell, ChevronDown, Menu, LogOut, User, Building2 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,13 @@ export function AppTopbar() {
   const plan = PLANS[workspace.plan];
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [utc, setUtc] = useState<string>("");
+  useEffect(() => {
+    const tick = () => setUtc(new Date().toUTCString().slice(17, 22));
+    tick();
+    const id = setInterval(tick, 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 h-12 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70">
@@ -74,7 +81,7 @@ export function AppTopbar() {
         <div className="hidden md:flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/80 mr-1">
           <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[color:var(--success)] nova-live-dot" /> OPS</span>
           <span className="opacity-40">·</span>
-          <span>{new Date().toUTCString().slice(17, 22)} UTC</span>
+          <span suppressHydrationWarning>{utc || "--:--"} UTC</span>
         </div>
 
         <Link
