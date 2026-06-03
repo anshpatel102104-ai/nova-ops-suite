@@ -180,6 +180,13 @@ export type Database = {
         }
         Returns: undefined
       }
+      get_provider_key_plaintext: {
+        Args: {
+          _provider: Database["public"]["Enums"]["ai_provider"]
+          _workspace_id: string
+        }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
