@@ -46,7 +46,7 @@ function WorkflowEditor() {
         setName(workflow.name);
         setDescription(workflow.description);
         setAgentSlug(workflow.agent_slug);
-        setSteps(workflow.steps as Step[]);
+        setSteps(workflow.steps as unknown as Step[]);
       } catch (e) {
         toast.error((e as Error).message);
       } finally {
