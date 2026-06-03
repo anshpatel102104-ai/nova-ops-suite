@@ -145,6 +145,200 @@ export type Database = {
           },
         ]
       }
+      operator_actions_log: {
+        Row: {
+          action_kind: string
+          created_at: string
+          id: string
+          payload: Json
+          recommendation_id: string | null
+          session_id: string | null
+          target: string | null
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          action_kind: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          recommendation_id?: string | null
+          session_id?: string | null
+          target?: string | null
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          action_kind?: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          recommendation_id?: string | null
+          session_id?: string | null
+          target?: string | null
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operator_actions_log_recommendation_id_fkey"
+            columns: ["recommendation_id"]
+            isOneToOne: false
+            referencedRelation: "operator_recommendations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operator_actions_log_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "operator_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operator_messages: {
+        Row: {
+          content: string
+          created_at: string
+          duration_ms: number | null
+          error: string | null
+          id: string
+          model: string | null
+          provider: string | null
+          role: string
+          session_id: string
+          specialist: string | null
+          status: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          model?: string | null
+          provider?: string | null
+          role: string
+          session_id: string
+          specialist?: string | null
+          status?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          model?: string | null
+          provider?: string | null
+          role?: string
+          session_id?: string
+          specialist?: string | null
+          status?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operator_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "operator_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operator_recommendations: {
+        Row: {
+          acted_at: string | null
+          action_kind: string
+          created_at: string
+          description: string | null
+          dismissed_at: string | null
+          id: string
+          label: string
+          message_id: string
+          payload: Json
+          session_id: string
+          target: string | null
+          workspace_id: string
+        }
+        Insert: {
+          acted_at?: string | null
+          action_kind: string
+          created_at?: string
+          description?: string | null
+          dismissed_at?: string | null
+          id?: string
+          label: string
+          message_id: string
+          payload?: Json
+          session_id: string
+          target?: string | null
+          workspace_id: string
+        }
+        Update: {
+          acted_at?: string | null
+          action_kind?: string
+          created_at?: string
+          description?: string | null
+          dismissed_at?: string | null
+          id?: string
+          label?: string
+          message_id?: string
+          payload?: Json
+          session_id?: string
+          target?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operator_recommendations_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "operator_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operator_recommendations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "operator_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operator_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
