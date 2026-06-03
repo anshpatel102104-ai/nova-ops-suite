@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Search, Bell, ChevronDown, Menu, LogOut, User, Building2 } from "lucide-react";
+import { Search, ChevronDown, Menu, LogOut, User, Building2 } from "lucide-react";
+import { NotificationBell } from "./NotificationBell";
+import { CommandPalette } from "./CommandPalette";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
