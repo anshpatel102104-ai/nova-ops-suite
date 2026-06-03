@@ -8,6 +8,8 @@ import { Logo } from "@/components/brand/Logo";
 import { ArrowLeft, ArrowRight, Check, Rocket } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_app/onboarding")({
   component: OnboardingPage,
@@ -117,9 +119,11 @@ function OnboardingPage() {
   const last = step === STEPS.length - 1;
   const pct = Math.round(((step + 1) / STEPS.length) * 100);
 
-  const finish = () => {
-    // TODO: persist onboarding response to Supabase (table: onboarding_responses)
-    // TODO: trigger n8n webhook for personalized recommendation
+  const { user } = useAuth();
+  const finish = async () => {
+    if (user) {
+      await supabase.from("profiles").update({ onboarded: true }).eq("id", user.id);
+    }
     console.log("[onboarding]", data);
     navigate({ to: "/app/dashboard" });
   };
