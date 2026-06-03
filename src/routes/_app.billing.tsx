@@ -1,24 +1,46 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { PageHeader, SectionHeader } from "@/components/app/PageHeader";
 import { StatusPill } from "@/components/app/StatusPill";
 import { Button } from "@/components/ui/button";
-import { PLANS, PLAN_ORDER, planRank } from "@/lib/plan";
+import { PLANS, PLAN_ORDER, planRank, formatLimit, type PlanId } from "@/lib/plan";
 import { useWorkspace } from "@/hooks/use-workspace";
+import { getBillingOverview, setWorkspacePlan } from "@/lib/billing.functions";
 import { Check, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/billing")({
   component: BillingPage,
 });
 
 function BillingPage() {
-  const { workspace } = useWorkspace();
-  const current = PLANS[workspace.plan];
+  const { workspace, refresh } = useWorkspace();
+  const qc = useQueryClient();
+  const fetchOverview = useServerFn(getBillingOverview);
+  const setPlan = useServerFn(setWorkspacePlan);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["billing", workspace.id],
+    queryFn: () => fetchOverview({ data: { workspaceId: workspace.id } }),
+  });
+
+  const mutate = useMutation({
+    mutationFn: (plan: PlanId) => setPlan({ data: { workspaceId: workspace.id, plan } }),
+    onSuccess: async (_res, plan) => {
+      toast.success(`Switched to ${PLANS[plan].name}`);
+      await Promise.all([refresh(), qc.invalidateQueries({ queryKey: ["billing", workspace.id] })]);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const currentId = (data?.plan ?? workspace.plan) as PlanId;
+  const current = PLANS[currentId];
 
   return (
     <>
-      <PageHeader eyebrow="Billing" title="Plan, usage, and invoices." />
+      <PageHeader eyebrow="Billing" title="Plan, usage, and limits." />
 
-      {/* Current plan */}
       <div className="nova-card p-5 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Current plan</p>
@@ -28,28 +50,29 @@ function BillingPage() {
           </div>
           <p className="mt-1 text-sm text-muted-foreground">{current.tagline}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">Manage subscription</Button>
-          {/* TODO: open Stripe customer portal */}
-        </div>
+        {data && !data.isOwner && (
+          <p className="text-xs text-muted-foreground">Only the workspace owner can change the plan.</p>
+        )}
       </div>
 
-      {/* Usage */}
-      <div className="grid sm:grid-cols-3 gap-3 mb-8">
-        <UsageCard label="Tool runs" value="12" limit={current.id === "scale" ? "∞" : "200"} />
-        <UsageCard label="Active systems" value="0" limit={String(current.systemLimit)} />
-        <UsageCard label="Integrations" value="2" limit="—" />
+      <SectionHeader title="This month" description="Usage resets on the 1st of each month." />
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+        <UsageCard label="Tool runs" value={data?.usage.tool_runs ?? 0} limit={current.limits.tool_runs} loading={isLoading} />
+        <UsageCard label="Workflow runs" value={data?.usage.workflow_runs ?? 0} limit={current.limits.workflow_runs} loading={isLoading} />
+        <UsageCard label="Teammates" value={data?.usage.members ?? 0} limit={current.limits.members} loading={isLoading} />
+        <UsageCard label="Custom playbooks" value={data?.usage.custom_playbooks ?? 0} limit={current.limits.custom_playbooks} loading={isLoading} />
       </div>
 
       <SectionHeader title="Plans" description="Upgrade or downgrade anytime." />
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid md:grid-cols-3 gap-4">
         {PLAN_ORDER.map((p) => {
           const plan = PLANS[p];
-          const isCurrent = p === workspace.plan;
-          const isUpgrade = planRank(p) > planRank(workspace.plan);
+          const isCurrent = p === currentId;
+          const isUpgrade = planRank(p) > planRank(currentId);
+          const disabled = isCurrent || mutate.isPending || (data && !data.isOwner);
           return (
             <div key={p} className={`nova-card p-5 flex flex-col ${isCurrent ? "border-primary/50" : ""}`}>
-              {p === "operate" && (
+              {p === "pro" && (
                 <div className="inline-flex items-center gap-1 rounded-full bg-primary/15 text-primary text-[10px] font-medium px-2 py-0.5 mb-3 self-start">
                   <Sparkles className="h-3 w-3" /> Most popular
                 </div>
@@ -59,7 +82,14 @@ function BillingPage() {
                 <span className="text-3xl font-semibold tracking-tight">${plan.price}</span>
                 <span className="text-xs text-muted-foreground">/mo</span>
               </div>
-              <Button size="sm" className="w-full mt-4" variant={isCurrent ? "outline" : "default"} disabled={isCurrent}>
+              <p className="mt-1 text-xs text-muted-foreground">{plan.tagline}</p>
+              <Button
+                size="sm"
+                className="w-full mt-4"
+                variant={isCurrent ? "outline" : "default"}
+                disabled={disabled}
+                onClick={() => mutate.mutate(p)}
+              >
                 {isCurrent ? "Current plan" : isUpgrade ? "Upgrade" : "Downgrade"}
               </Button>
               <ul className="mt-5 space-y-2">
@@ -74,25 +104,32 @@ function BillingPage() {
         })}
       </div>
 
-      <div className="mt-8">
-        <SectionHeader title="Invoice history" />
-        <div className="nova-card p-8 text-center text-sm text-muted-foreground">
-          No invoices yet. Connected Stripe customer portal will list invoices here.
-          {/* TODO: pull invoices from Stripe via n8n */}
-        </div>
-      </div>
+      <p className="mt-8 text-xs text-muted-foreground">
+        Plan changes apply immediately. Payment processing isn't connected yet — switching plans is free during preview.
+      </p>
     </>
   );
 }
 
-function UsageCard({ label, value, limit }: { label: string; value: string; limit: string }) {
+function UsageCard({ label, value, limit, loading }: { label: string; value: number; limit: number; loading?: boolean }) {
+  const unlimited = limit < 0;
+  const pct = unlimited ? 0 : limit === 0 ? 100 : Math.min(100, Math.round((value / limit) * 100));
+  const over = !unlimited && value >= limit;
   return (
     <div className="nova-card p-4">
       <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{label}</p>
       <div className="mt-2 flex items-baseline gap-1.5">
-        <span className="text-2xl font-semibold tracking-tight">{value}</span>
-        <span className="text-xs text-muted-foreground">/ {limit}</span>
+        <span className="text-2xl font-semibold tracking-tight">{loading ? "—" : value.toLocaleString()}</span>
+        <span className="text-xs text-muted-foreground">/ {formatLimit(limit)}</span>
       </div>
+      {!unlimited && (
+        <div className="mt-3 h-1.5 w-full rounded-full bg-muted overflow-hidden">
+          <div
+            className={`h-full transition-all ${over ? "bg-destructive" : "bg-primary"}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      )}
     </div>
   );
 }

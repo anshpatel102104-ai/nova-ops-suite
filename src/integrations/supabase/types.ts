@@ -426,6 +426,36 @@ export type Database = {
           },
         ]
       }
+      workspace_usage: {
+        Row: {
+          created_at: string
+          id: string
+          period_start: string
+          tool_runs: number
+          updated_at: string
+          workflow_runs: number
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          period_start: string
+          tool_runs?: number
+          updated_at?: string
+          workflow_runs?: number
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          period_start?: string
+          tool_runs?: number
+          updated_at?: string
+          workflow_runs?: number
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       workspaces: {
         Row: {
           created_at: string
@@ -465,12 +495,20 @@ export type Database = {
     }
     Functions: {
       accept_invitation: { Args: { _token: string }; Returns: string }
+      check_and_increment_usage: {
+        Args: { _kind: string; _workspace_id: string }
+        Returns: Json
+      }
       delete_provider_key: {
         Args: {
           _provider: Database["public"]["Enums"]["ai_provider"]
           _workspace_id: string
         }
         Returns: undefined
+      }
+      get_plan_limits: {
+        Args: { _plan: Database["public"]["Enums"]["workspace_plan"] }
+        Returns: Json
       }
       get_provider_key_plaintext: {
         Args: {
@@ -528,7 +566,13 @@ export type Database = {
       invitation_status: "pending" | "accepted" | "revoked" | "expired"
       tool_run_status: "pending" | "running" | "succeeded" | "failed"
       workflow_run_status: "pending" | "running" | "succeeded" | "failed"
-      workspace_plan: "starter" | "launch" | "scale" | "enterprise"
+      workspace_plan:
+        | "starter"
+        | "launch"
+        | "scale"
+        | "enterprise"
+        | "pro"
+        | "business"
       workspace_role: "owner" | "admin" | "member"
     }
     CompositeTypes: {
@@ -671,7 +715,14 @@ export const Constants = {
       invitation_status: ["pending", "accepted", "revoked", "expired"],
       tool_run_status: ["pending", "running", "succeeded", "failed"],
       workflow_run_status: ["pending", "running", "succeeded", "failed"],
-      workspace_plan: ["starter", "launch", "scale", "enterprise"],
+      workspace_plan: [
+        "starter",
+        "launch",
+        "scale",
+        "enterprise",
+        "pro",
+        "business",
+      ],
       workspace_role: ["owner", "admin", "member"],
     },
   },

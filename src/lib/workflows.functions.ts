@@ -55,6 +55,23 @@ export const createWorkflow = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    // Enforce custom-playbook cap.
+    const { planFor } = await import("./plan");
+    const { data: ws } = await supabase
+      .from("workspaces").select("plan").eq("id", data.workspaceId).maybeSingle();
+    const limit = planFor(ws?.plan).limits.custom_playbooks;
+    if (limit >= 0) {
+      const { count } = await supabase
+        .from("workflows")
+        .select("id", { count: "exact", head: true })
+        .eq("workspace_id", data.workspaceId)
+        .eq("is_template", false);
+      if ((count ?? 0) >= limit) {
+        throw new Error(`Custom playbook limit reached (${limit}). Upgrade your plan to create more.`);
+      }
+    }
+
     const { data: row, error } = await supabase
       .from("workflows")
       .insert({
@@ -135,6 +152,18 @@ export const runWorkflow = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const started = Date.now();
+
+    // Enforce monthly workflow-run cap atomically.
+    const { data: usage, error: usageErr } = await supabase.rpc("check_and_increment_usage", {
+      _workspace_id: data.workspaceId,
+      _kind: "workflow_runs",
+    });
+    if (usageErr) throw new Error(usageErr.message);
+    const u = usage as { allowed: boolean; usage: number; limit: number } | null;
+    if (u && !u.allowed) {
+      throw new Error(`Monthly workflow-run limit reached (${u.usage}/${u.limit}). Upgrade your plan to continue.`);
+    }
+
 
     // Load workflow (template or own)
     const { data: wf, error: wfErr } = await supabase

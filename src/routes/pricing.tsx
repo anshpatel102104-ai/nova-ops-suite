@@ -15,11 +15,13 @@ export const Route = createFileRoute("/pricing")({
 });
 
 const COMPARE = [
-  { label: "LaunchPad tools", values: ["2", "All 10", "All 10", "All 10"] },
-  { label: "Nova OS systems",  values: ["—", "1", "4", "All 6"] },
-  { label: "Tool runs / mo",   values: ["10", "200", "1,500", "Unlimited"] },
-  { label: "Integrations",     values: ["—", "Basic", "Full", "Full + custom"] },
-  { label: "Support",          values: ["Community", "Email", "Priority", "Dedicated"] },
+  { label: "LaunchPad tools",     values: ["5", "All 17", "All 17"] },
+  { label: "Nova OS systems",     values: ["1", "4", "All 6"] },
+  { label: "Tool runs / mo",      values: ["50", "1,000", "10,000"] },
+  { label: "Workflow runs / mo",  values: ["10", "200", "2,000"] },
+  { label: "Teammates",           values: ["2", "10", "Unlimited"] },
+  { label: "Custom playbooks",    values: ["3", "Unlimited", "Unlimited"] },
+  { label: "Support",             values: ["Community", "Email", "Priority"] },
 ];
 
 function PricingPage() {
@@ -42,10 +44,10 @@ function PricingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {PLAN_ORDER.map((p) => {
               const plan = PLANS[p];
-              const featured = p === "operate";
+              const featured = p === "pro";
               return (
                 <div key={p} className={`nova-card p-6 flex flex-col ${featured ? "border-primary/50 nova-glow" : ""}`}>
                   {featured && (

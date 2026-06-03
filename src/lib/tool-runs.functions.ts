@@ -21,6 +21,18 @@ export const runTool = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const started = Date.now();
 
+    // Enforce monthly usage cap atomically.
+    const { data: usage, error: usageErr } = await supabase.rpc("check_and_increment_usage", {
+      _workspace_id: data.workspaceId,
+      _kind: "tool_runs",
+    });
+    if (usageErr) throw new Error(usageErr.message);
+    const u = usage as { allowed: boolean; usage: number; limit: number } | null;
+    if (u && !u.allowed) {
+      throw new Error(`Monthly tool-run limit reached (${u.usage}/${u.limit}). Upgrade your plan to continue.`);
+    }
+
+
     // Create pending run row first so it shows up in history even on failure.
     const { data: row, error: insErr } = await supabase
       .from("tool_runs")
