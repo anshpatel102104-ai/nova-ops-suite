@@ -17,10 +17,11 @@ function NovaOSPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Nova OS"
-        title="6 systems that run your business."
-        description="Activate ready-made automations for capture, booking, follow-up, reviews, and more."
+        eyebrow="Automation Hub · Nova OS"
+        title="6 command-center workflows that run your business."
+        description="End-to-end automations with triggers, model routing, and step-level logs."
       />
+
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {NOVA_SYSTEMS.map((sys, i) => {
