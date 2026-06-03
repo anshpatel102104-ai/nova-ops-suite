@@ -3,20 +3,18 @@ import { PageHeader, SectionHeader } from "@/components/app/PageHeader";
 import { StatusPill } from "@/components/app/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { useWorkspace } from "@/hooks/use-workspace";
 import {
-  ArrowRight, Bot, Cpu, Loader2, MessageSquarePlus, Plus, Save, Send, Sparkles, Trash2, Workflow,
+  ArrowRight, Bot, Cpu, Loader2, MessageSquarePlus, Save, Send, Sparkles, Trash2, Workflow,
 } from "lucide-react";
 import {
   createSession, deleteSession, getSession, listSessions, logAction,
   saveResponseAsAsset, sendMessage,
 } from "@/lib/operator.functions";
 import { cn } from "@/lib/utils";
-import { LAUNCHPAD_TOOLS } from "@/lib/catalog";
 
 export const Route = createFileRoute("/_app/nova-os")({
   component: NovaOperatorPage,
