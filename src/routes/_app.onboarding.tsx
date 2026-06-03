@@ -163,6 +163,43 @@ function OnboardingPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div className="space-y-1.5"><Label>{label}</Label>{children}</div>;
 }
+
+function BootSequence() {
+  const lines = [
+    "> initializing launchpad nova v1.0.0",
+    "> mounting mission control · OK",
+    "> spinning up agent network · 5 mentors online",
+    "> calibrating founder telemetry · OK",
+    "> Nova orchestrator · standing by",
+  ];
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    if (shown >= lines.length) return;
+    const t = setTimeout(() => setShown(shown + 1), 320);
+    return () => clearTimeout(t);
+  }, [shown, lines.length]);
+  const ready = shown >= lines.length;
+  return (
+    <div className="nova-dark rounded-md bg-charcoal border border-border p-5 font-mono text-[12px] leading-relaxed text-[color:var(--foreground)] nova-scanlines">
+      {lines.slice(0, shown).map((l, i) => (
+        <div key={i} className="nova-fade-up">
+          <span className="text-[color:var(--primary)]">{l.split(" · ")[0]}</span>
+          {l.includes(" · ") && (
+            <span className="text-[color:var(--success)]"> · {l.split(" · ")[1]}</span>
+          )}
+        </div>
+      ))}
+      {!ready && <span className="inline-block w-2 h-3.5 bg-[color:var(--primary)] align-text-bottom nova-caret ml-0.5" />}
+      {ready && (
+        <div className="mt-4 flex items-center gap-2 text-[color:var(--primary)] nova-fade-up">
+          <Rocket className="h-3.5 w-3.5" />
+          <span>system ready. proceed when you are, operator.</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ChoiceGroup({ label, options, value, onChange }: { label: string; options: string[]; value: string; onChange: (v: string)=>void }) {
   return (
     <div>
