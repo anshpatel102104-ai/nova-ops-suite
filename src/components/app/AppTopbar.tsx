@@ -30,7 +30,17 @@ export function AppTopbar() {
 
   return (
     <header className="sticky top-0 z-30 h-12 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+      <CommandPalette />
       <div className="flex h-full items-center gap-2 px-3 md:px-4">
+        <button
+          type="button"
+          onClick={() => {
+            const e = new KeyboardEvent("keydown", { key: "k", metaKey: true });
+            window.dispatchEvent(e);
+          }}
+          aria-hidden
+          className="sr-only"
+        >open palette</button>
         {/* Mobile nav */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
