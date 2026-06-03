@@ -289,3 +289,175 @@ function SaveBar() {
     </div>
   );
 }
+
+type WorkspaceRole = "owner" | "admin" | "member";
+type Member = {
+  user_id: string;
+  role: WorkspaceRole;
+  full_name: string | null;
+  avatar_url: string | null;
+  is_owner: boolean;
+  joined_at: string;
+};
+type Invitation = {
+  id: string;
+  email: string;
+  role: WorkspaceRole;
+  status: "pending" | "accepted" | "revoked" | "expired";
+  token: string;
+  expires_at: string;
+  created_at: string;
+  accepted_at: string | null;
+};
+
+function TeamTab({ workspaceId }: { workspaceId: string }) {
+  const fetchMembers = useServerFn(listMembers);
+  const fetchInvites = useServerFn(listInvitations);
+  const sendInvite = useServerFn(inviteMember);
+  const revoke = useServerFn(revokeInvitation);
+  const setRole = useServerFn(updateMemberRole);
+  const removeMbr = useServerFn(removeMember);
+
+  const [members, setMembers] = useState<Member[]>([]);
+  const [invites, setInvites] = useState<Invitation[]>([]);
+  const [email, setEmail] = useState("");
+  const [role, setRoleValue] = useState<"admin" | "member">("member");
+  const [busy, setBusy] = useState(false);
+
+  const refresh = async () => {
+    const [m, i] = await Promise.all([
+      fetchMembers({ data: { workspaceId } }),
+      fetchInvites({ data: { workspaceId } }),
+    ]);
+    setMembers(m.members as Member[]);
+    setInvites(i.invitations as Invitation[]);
+  };
+  useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [workspaceId]);
+
+  const onInvite = async () => {
+    if (!email) return;
+    setBusy(true);
+    try {
+      await sendInvite({ data: { workspaceId, email, role } });
+      setEmail("");
+      toast.success(`Invite sent to ${email}.`);
+      await refresh();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally { setBusy(false); }
+  };
+
+  const copyLink = (token: string) => {
+    const url = `${window.location.origin}/app/invite/${token}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Invite link copied.");
+  };
+
+  const onRevoke = async (id: string) => {
+    await revoke({ data: { invitationId: id } });
+    toast.success("Invitation revoked.");
+    await refresh();
+  };
+
+  const onChangeRole = async (userId: string, newRole: "admin" | "member") => {
+    await setRole({ data: { workspaceId, userId, role: newRole } });
+    toast.success("Role updated.");
+    await refresh();
+  };
+
+  const onRemove = async (userId: string) => {
+    if (!confirm("Remove this teammate from the workspace?")) return;
+    await removeMbr({ data: { workspaceId, userId } });
+    toast.success("Member removed.");
+    await refresh();
+  };
+
+  const pending = invites.filter((i) => i.status === "pending");
+
+  return (
+    <div className="space-y-4 max-w-3xl">
+      <Section title="Invite teammates">
+        <p className="text-sm text-muted-foreground -mt-1">
+          Members can run tools and view assets. Admins can also manage provider keys and systems.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Input
+            type="email"
+            placeholder="teammate@company.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={busy}
+          />
+          <Select value={role} onValueChange={(v) => setRoleValue(v as "admin" | "member")}>
+            <SelectTrigger className="sm:w-[140px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="member">Member</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={onInvite} disabled={busy || !email}>
+            <Mail className="h-4 w-4 mr-1.5" /> Send invite
+          </Button>
+        </div>
+      </Section>
+
+      <Section title={`Members · ${members.length}`}>
+        <ul className="divide-y divide-border">
+          {members.map((m) => (
+            <li key={m.user_id} className="py-3 flex items-center gap-3">
+              <Avatar className="h-9 w-9">
+                {m.avatar_url && <AvatarImage src={m.avatar_url} />}
+                <AvatarFallback>{(m.full_name ?? "?").slice(0, 1).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{m.full_name ?? "Unnamed"}</p>
+                <p className="text-xs text-muted-foreground">Joined {new Date(m.joined_at).toLocaleDateString()}</p>
+              </div>
+              {m.is_owner ? (
+                <Badge variant="secondary" className="gap-1"><ShieldCheck className="h-3 w-3" /> Owner</Badge>
+              ) : (
+                <>
+                  <Select value={m.role} onValueChange={(v) => onChangeRole(m.user_id, v as "admin" | "member")}>
+                    <SelectTrigger className="w-[120px] h-8"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="member">Member</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button size="icon" variant="ghost" onClick={() => onRemove(m.user_id)}>
+                    <UserMinus className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      {pending.length > 0 && (
+        <Section title={`Pending invitations · ${pending.length}`}>
+          <ul className="divide-y divide-border">
+            {pending.map((i) => (
+              <li key={i.id} className="py-3 flex items-center gap-3">
+                <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{i.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {i.role} · expires {new Date(i.expires_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => copyLink(i.token)}>
+                  <Copy className="h-3.5 w-3.5 mr-1.5" /> Copy link
+                </Button>
+                <Button size="icon" variant="ghost" onClick={() => onRevoke(i.id)}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+    </div>
+  );
+}
+
