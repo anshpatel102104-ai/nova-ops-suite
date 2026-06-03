@@ -219,6 +219,59 @@ export type Database = {
         }
         Relationships: []
       }
+      workspace_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          role: Database["public"]["Enums"]["workspace_role"]
+          status: Database["public"]["Enums"]["invitation_status"]
+          token: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          role?: Database["public"]["Enums"]["workspace_role"]
+          status?: Database["public"]["Enums"]["invitation_status"]
+          token?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          role?: Database["public"]["Enums"]["workspace_role"]
+          status?: Database["public"]["Enums"]["invitation_status"]
+          token?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_invitations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_members: {
         Row: {
           created_at: string
@@ -327,6 +380,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_invitation: { Args: { _token: string }; Returns: string }
       delete_provider_key: {
         Args: {
           _provider: Database["public"]["Enums"]["ai_provider"]
@@ -340,6 +394,17 @@ export type Database = {
           _workspace_id: string
         }
         Returns: string
+      }
+      get_workspace_members: {
+        Args: { _workspace_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          is_owner: boolean
+          joined_at: string
+          role: Database["public"]["Enums"]["workspace_role"]
+          user_id: string
+        }[]
       }
       has_role: {
         Args: {
@@ -376,6 +441,7 @@ export type Database = {
         | "content"
         | "workflow"
         | "other"
+      invitation_status: "pending" | "accepted" | "revoked" | "expired"
       tool_run_status: "pending" | "running" | "succeeded" | "failed"
       workspace_plan: "starter" | "launch" | "scale" | "enterprise"
       workspace_role: "owner" | "admin" | "member"
@@ -517,6 +583,7 @@ export const Constants = {
         "workflow",
         "other",
       ],
+      invitation_status: ["pending", "accepted", "revoked", "expired"],
       tool_run_status: ["pending", "running", "succeeded", "failed"],
       workspace_plan: ["starter", "launch", "scale", "enterprise"],
       workspace_role: ["owner", "admin", "member"],
