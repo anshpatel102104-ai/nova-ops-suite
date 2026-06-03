@@ -74,7 +74,7 @@ function LaunchPadPage() {
                           </Link>
                         </Button>
                       </div>
-                      {!unlocked && <LockedOverlay requiredPlan={PLANS.launch.name} />}
+                      {!unlocked && <LockedOverlay requiredPlan={PLANS.pro.name} />}
                     </div>
                   );
                 })}

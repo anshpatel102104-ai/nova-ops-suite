@@ -157,7 +157,7 @@ function PricingTeaser() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           {PLAN_ORDER.map((p) => {
             const plan = PLANS[p];
-            const featured = p === "operate";
+            const featured = p === "pro";
             return (
               <div key={p} className={`nova-card p-6 ${featured ? "border-primary/50" : ""}`}>
                 {featured && (

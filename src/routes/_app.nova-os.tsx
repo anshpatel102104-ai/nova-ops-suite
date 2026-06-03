@@ -48,7 +48,7 @@ function NovaOSPage() {
                   </Link>
                 </Button>
               </div>
-              {!unlocked && <LockedOverlay requiredPlan={PLANS.operate.name} />}
+              {!unlocked && <LockedOverlay requiredPlan={PLANS.pro.name} />}
             </div>
           );
         })}

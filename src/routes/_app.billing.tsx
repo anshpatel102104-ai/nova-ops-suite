@@ -36,7 +36,7 @@ function BillingPage() {
 
       {/* Usage */}
       <div className="grid sm:grid-cols-3 gap-3 mb-8">
-        <UsageCard label="Tool runs" value="12" limit={current.id === "scale" ? "∞" : "200"} />
+        <UsageCard label="Tool runs" value="12" limit={current.id === "business" ? "∞" : "200"} />
         <UsageCard label="Active systems" value="0" limit={String(current.systemLimit)} />
         <UsageCard label="Integrations" value="2" limit="—" />
       </div>
@@ -49,7 +49,7 @@ function BillingPage() {
           const isUpgrade = planRank(p) > planRank(workspace.plan);
           return (
             <div key={p} className={`nova-card p-5 flex flex-col ${isCurrent ? "border-primary/50" : ""}`}>
-              {p === "operate" && (
+              {p === "pro" && (
                 <div className="inline-flex items-center gap-1 rounded-full bg-primary/15 text-primary text-[10px] font-medium px-2 py-0.5 mb-3 self-start">
                   <Sparkles className="h-3 w-3" /> Most popular
                 </div>

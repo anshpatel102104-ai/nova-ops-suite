@@ -284,7 +284,7 @@ function DashboardPage() {
             )}
           </div>
 
-          {plan.id !== "scale" && (
+          {plan.id !== "business" && (
             <Link
               to="/app/billing"
               className="block nova-card p-5 nova-card-hover"
