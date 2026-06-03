@@ -45,11 +45,14 @@ function ToolDetail() {
 
   const runFn = useServerFn(runTool);
   const listFn = useServerFn(listToolRuns);
+  const saveFn = useServerFn(createAsset);
 
   const [input, setInput] = useState("");
   const [output, setOutput] = useState<string | null>(null);
   const [meta, setMeta] = useState<{ provider?: string; model?: string } | null>(null);
+  const [lastRunId, setLastRunId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<RunRow[]>([]);
 
@@ -59,7 +62,6 @@ function ToolDetail() {
       const { runs } = await listFn({ data: { workspaceId: workspace.id, toolSlug: tool.slug } });
       setHistory(runs as RunRow[]);
     } catch (e) {
-      // ignore — table may be cold; surface only on user-driven errors
       console.error(e);
     }
   }, [listFn, tool, workspace.id]);
@@ -79,7 +81,7 @@ function ToolDetail() {
 
   const run = async () => {
     if (!input.trim()) return;
-    setLoading(true); setError(null); setOutput(null); setMeta(null);
+    setLoading(true); setError(null); setOutput(null); setMeta(null); setLastRunId(null);
     try {
       const res = await runFn({
         data: {
@@ -91,6 +93,7 @@ function ToolDetail() {
       });
       setOutput(res.output);
       setMeta({ provider: res.provider, model: res.model });
+      setLastRunId(res.runId);
       await refresh();
     } catch (e) {
       const msg = (e as Error).message;
@@ -99,6 +102,27 @@ function ToolDetail() {
       await refresh();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveAsAsset = async () => {
+    if (!output) return;
+    setSaving(true);
+    try {
+      await saveFn({
+        data: {
+          workspaceId: workspace.id,
+          name: `${tool.name} — ${new Date().toLocaleString()}`,
+          type: TOOL_TO_ASSET_TYPE[tool.slug] ?? "other",
+          body: output,
+          sourceRunId: lastRunId ?? undefined,
+        },
+      });
+      toast.success("Saved to Assets");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSaving(false);
     }
   };
 
