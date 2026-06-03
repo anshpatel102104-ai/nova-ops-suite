@@ -90,7 +90,7 @@ export const updateWorkflow = createServerFn({ method: "POST" })
     if (data.description !== undefined) patch.description = data.description;
     if (data.agentSlug !== undefined) patch.agent_slug = data.agentSlug;
     if (data.steps !== undefined) patch.steps = data.steps;
-    const { error } = await supabase.from("workflows").update(patch).eq("id", data.id);
+    const { error } = await supabase.from("workflows").update(patch as never).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
