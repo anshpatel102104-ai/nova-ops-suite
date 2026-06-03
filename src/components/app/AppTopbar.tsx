@@ -11,6 +11,7 @@ import { AppSidebar } from "./AppSidebar";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { PLANS } from "@/lib/plan";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 
 export function AppTopbar() {
   const { workspace } = useWorkspace();
@@ -119,7 +120,7 @@ export function AppTopbar() {
               Billing
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate({ to: "/" })}>
+            <DropdownMenuItem onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/login" }); }}>
               <LogOut className="h-4 w-4 mr-2" /> Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
