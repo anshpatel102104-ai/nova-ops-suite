@@ -26,6 +26,7 @@ import { Route as AppIntegrationsRouteImport } from './routes/_app.integrations'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppAssetsRouteImport } from './routes/_app.assets'
+import { Route as AppAgentsRouteImport } from './routes/_app.agents'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as AppActivityRouteImport } from './routes/_app.activity'
 import { Route as AppNovaOsSlugRouteImport } from './routes/_app.nova-os.$slug'
@@ -114,6 +115,11 @@ const AppAssetsRoute = AppAssetsRouteImport.update({
   path: '/assets',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAgentsRoute = AppAgentsRouteImport.update({
+  id: '/agents',
+  path: '/agents',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAdminRoute = AppAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/activity': typeof AppActivityRoute
   '/admin': typeof AppAdminRoute
+  '/agents': typeof AppAgentsRoute
   '/assets': typeof AppAssetsRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/activity': typeof AppActivityRoute
   '/admin': typeof AppAdminRoute
+  '/agents': typeof AppAgentsRoute
   '/assets': typeof AppAssetsRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/_app/activity': typeof AppActivityRoute
   '/_app/admin': typeof AppAdminRoute
+  '/_app/agents': typeof AppAgentsRoute
   '/_app/assets': typeof AppAssetsRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/dashboard': typeof AppDashboardRoute
@@ -209,6 +218,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/activity'
     | '/admin'
+    | '/agents'
     | '/assets'
     | '/billing'
     | '/dashboard'
@@ -230,6 +240,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/activity'
     | '/admin'
+    | '/agents'
     | '/assets'
     | '/billing'
     | '/dashboard'
@@ -253,6 +264,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/_app/activity'
     | '/_app/admin'
+    | '/_app/agents'
     | '/_app/assets'
     | '/_app/billing'
     | '/_app/dashboard'
@@ -398,6 +410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAssetsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/agents': {
+      id: '/_app/agents'
+      path: '/agents'
+      fullPath: '/agents'
+      preLoaderRoute: typeof AppAgentsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/admin': {
       id: '/_app/admin'
       path: '/admin'
@@ -456,6 +475,7 @@ const AppNovaOsRouteWithChildren = AppNovaOsRoute._addFileChildren(
 interface AppRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
   AppAdminRoute: typeof AppAdminRoute
+  AppAgentsRoute: typeof AppAgentsRoute
   AppAssetsRoute: typeof AppAssetsRoute
   AppBillingRoute: typeof AppBillingRoute
   AppDashboardRoute: typeof AppDashboardRoute
@@ -469,6 +489,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppActivityRoute: AppActivityRoute,
   AppAdminRoute: AppAdminRoute,
+  AppAgentsRoute: AppAgentsRoute,
   AppAssetsRoute: AppAssetsRoute,
   AppBillingRoute: AppBillingRoute,
   AppDashboardRoute: AppDashboardRoute,
