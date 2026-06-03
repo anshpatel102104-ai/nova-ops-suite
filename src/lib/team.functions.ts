@@ -42,7 +42,25 @@ export const inviteMember = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Revoke any existing pending invite for the same email to avoid unique conflict.
+    // Enforce member cap based on workspace plan.
+    const { planFor } = await import("./plan");
+    const { data: ws } = await supabase
+      .from("workspaces").select("plan").eq("id", data.workspaceId).maybeSingle();
+    const limit = planFor(ws?.plan).limits.members;
+    if (limit >= 0) {
+      const [{ count: memberCount }, { count: pendingCount }] = await Promise.all([
+        supabase.from("workspace_members").select("user_id", { count: "exact", head: true })
+          .eq("workspace_id", data.workspaceId),
+        supabase.from("workspace_invitations").select("id", { count: "exact", head: true })
+          .eq("workspace_id", data.workspaceId).eq("status", "pending"),
+      ]);
+      const total = (memberCount ?? 0) + (pendingCount ?? 0);
+      if (total >= limit) {
+        throw new Error(`Member limit reached (${limit}). Upgrade your plan to invite more teammates.`);
+      }
+    }
+
+
     await supabase
       .from("workspace_invitations")
       .update({ status: "revoked" })
