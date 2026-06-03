@@ -9,23 +9,12 @@ export async function resolveProviderKey(
 ): Promise<string | null> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  const { data: row, error } = await supabaseAdmin
-    .from("workspace_provider_keys")
-    .select("vault_secret_id")
-    .eq("workspace_id", workspaceId)
-    .eq("provider", provider)
-    .maybeSingle();
+  const { data, error } = await supabaseAdmin.rpc("get_provider_key_plaintext", {
+    _workspace_id: workspaceId,
+    _provider: provider,
+  });
   if (error) throw new Error(error.message);
-  if (!row) return null;
-
-  const { data: secret, error: secretErr } = await supabaseAdmin
-    .schema("vault" as never)
-    .from("decrypted_secrets" as never)
-    .select("decrypted_secret")
-    .eq("id", row.vault_secret_id)
-    .maybeSingle();
-  if (secretErr) throw new Error(secretErr.message);
-  return (secret as { decrypted_secret?: string } | null)?.decrypted_secret ?? null;
+  return (data as string | null) ?? null;
 }
 
 export interface ChatMessage {
