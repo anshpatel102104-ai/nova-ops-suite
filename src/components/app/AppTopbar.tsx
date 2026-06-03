@@ -96,9 +96,7 @@ export function AppTopbar() {
         </Link>
 
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="h-9 w-9">
-          <Bell className="h-4 w-4" />
-        </Button>
+        <NotificationBell />
 
         {/* Profile */}
         <DropdownMenu>
