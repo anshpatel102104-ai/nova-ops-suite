@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSignupRouteImport } from './routes/_auth.signup'
+import { Route as AuthResetPasswordRouteImport } from './routes/_auth.reset-password'
 import { Route as AuthLoginRouteImport } from './routes/_auth.login'
 import { Route as AuthInviteRouteImport } from './routes/_auth.invite'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth.forgot-password'
@@ -58,6 +59,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/invite': typeof AuthInviteRoute
   '/login': typeof AuthLoginRoute
+  '/reset-password': typeof AuthResetPasswordRoute
   '/signup': typeof AuthSignupRoute
   '/launchpad/$slug': typeof AppLaunchpadSlugRoute
   '/nova-os/$slug': typeof AppNovaOsSlugRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/invite': typeof AuthInviteRoute
   '/login': typeof AuthLoginRoute
+  '/reset-password': typeof AuthResetPasswordRoute
   '/signup': typeof AuthSignupRoute
   '/launchpad/$slug': typeof AppLaunchpadSlugRoute
   '/nova-os/$slug': typeof AppNovaOsSlugRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
   '/_auth/invite': typeof AuthInviteRoute
   '/_auth/login': typeof AuthLoginRoute
+  '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/_app/launchpad/$slug': typeof AppLaunchpadSlugRoute
   '/_app/nova-os/$slug': typeof AppNovaOsSlugRoute
@@ -230,6 +239,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/invite'
     | '/login'
+    | '/reset-password'
     | '/signup'
     | '/launchpad/$slug'
     | '/nova-os/$slug'
@@ -252,6 +262,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/invite'
     | '/login'
+    | '/reset-password'
     | '/signup'
     | '/launchpad/$slug'
     | '/nova-os/$slug'
@@ -276,6 +287,7 @@ export interface FileRouteTypes {
     | '/_auth/forgot-password'
     | '/_auth/invite'
     | '/_auth/login'
+    | '/_auth/reset-password'
     | '/_auth/signup'
     | '/_app/launchpad/$slug'
     | '/_app/nova-os/$slug'
@@ -331,6 +343,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/reset-password': {
+      id: '/_auth/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/login': {
@@ -506,6 +525,7 @@ interface AuthRouteChildren {
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthInviteRoute: typeof AuthInviteRoute
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignupRoute: typeof AuthSignupRoute
 }
 
@@ -513,6 +533,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthInviteRoute: AuthInviteRoute,
   AuthLoginRoute: AuthLoginRoute,
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignupRoute: AuthSignupRoute,
 }
 
