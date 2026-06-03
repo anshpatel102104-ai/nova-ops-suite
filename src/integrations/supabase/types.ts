@@ -44,6 +44,65 @@ export type Database = {
         }
         Relationships: []
       }
+      tool_runs: {
+        Row: {
+          agent_slug: string | null
+          created_at: string
+          duration_ms: number | null
+          error: string | null
+          id: string
+          input: string
+          model: string | null
+          output: string | null
+          provider: Database["public"]["Enums"]["ai_provider"] | null
+          status: Database["public"]["Enums"]["tool_run_status"]
+          tool_slug: string
+          updated_at: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          agent_slug?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          input: string
+          model?: string | null
+          output?: string | null
+          provider?: Database["public"]["Enums"]["ai_provider"] | null
+          status?: Database["public"]["Enums"]["tool_run_status"]
+          tool_slug: string
+          updated_at?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          agent_slug?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          input?: string
+          model?: string | null
+          output?: string | null
+          provider?: Database["public"]["Enums"]["ai_provider"] | null
+          status?: Database["public"]["Enums"]["tool_run_status"]
+          tool_slug?: string
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_runs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -214,6 +273,7 @@ export type Database = {
     Enums: {
       ai_provider: "anthropic" | "openai"
       app_role: "admin" | "moderator" | "user"
+      tool_run_status: "pending" | "running" | "succeeded" | "failed"
       workspace_plan: "starter" | "launch" | "scale" | "enterprise"
       workspace_role: "owner" | "admin" | "member"
     }
@@ -345,6 +405,7 @@ export const Constants = {
     Enums: {
       ai_provider: ["anthropic", "openai"],
       app_role: ["admin", "moderator", "user"],
+      tool_run_status: ["pending", "running", "succeeded", "failed"],
       workspace_plan: ["starter", "launch", "scale", "enterprise"],
       workspace_role: ["owner", "admin", "member"],
     },

@@ -1,28 +1,63 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { PageHeader } from "@/components/app/PageHeader";
-import { SectionHeader } from "@/components/app/PageHeader";
+import { PageHeader, SectionHeader } from "@/components/app/PageHeader";
 import { StatusPill } from "@/components/app/StatusPill";
 import { EmptyState } from "@/components/app/EmptyState";
 import { LAUNCHPAD_TOOLS } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Download, History, Save, Sparkles, Zap } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { runTool, listToolRuns } from "@/lib/tool-runs.functions";
+import { useWorkspace } from "@/hooks/use-workspace";
 
 export const Route = createFileRoute("/_app/launchpad/$slug")({
   component: ToolDetail,
   notFoundComponent: () => <EmptyState title="Tool not found" />,
 });
 
+type RunRow = {
+  id: string;
+  status: "pending" | "running" | "succeeded" | "failed";
+  input: string;
+  output: string | null;
+  error: string | null;
+  provider: string | null;
+  model: string | null;
+  duration_ms: number | null;
+  created_at: string;
+};
+
 function ToolDetail() {
   const { slug } = useParams({ from: "/_app/launchpad/$slug" });
+  const { workspace } = useWorkspace();
   const tool = LAUNCHPAD_TOOLS.find((t) => t.slug === slug);
+
+  const runFn = useServerFn(runTool);
+  const listFn = useServerFn(listToolRuns);
+
   const [input, setInput] = useState("");
   const [output, setOutput] = useState<string | null>(null);
+  const [meta, setMeta] = useState<{ provider?: string; model?: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<RunRow[]>([]);
+
+  const refresh = useCallback(async () => {
+    if (!tool) return;
+    try {
+      const { runs } = await listFn({ data: { workspaceId: workspace.id, toolSlug: tool.slug } });
+      setHistory(runs as RunRow[]);
+    } catch (e) {
+      // ignore — table may be cold; surface only on user-driven errors
+      console.error(e);
+    }
+  }, [listFn, tool, workspace.id]);
+
+  useEffect(() => { refresh(); }, [refresh]);
 
   if (!tool) {
     return (
@@ -37,13 +72,24 @@ function ToolDetail() {
 
   const run = async () => {
     if (!input.trim()) return;
-    setLoading(true); setError(null); setOutput(null);
+    setLoading(true); setError(null); setOutput(null); setMeta(null);
     try {
-      // TODO: POST to n8n webhook for `${tool.slug}` and persist run in Supabase
-      await new Promise((r) => setTimeout(r, 900));
-      setOutput(`# ${tool.name} result\n\nGenerated draft based on:\n"${input}"\n\n— Replace with live n8n output —`);
+      const res = await runFn({
+        data: {
+          workspaceId: workspace.id,
+          toolSlug: tool.slug,
+          agentSlug: tool.agent,
+          input,
+        },
+      });
+      setOutput(res.output);
+      setMeta({ provider: res.provider, model: res.model });
+      await refresh();
     } catch (e) {
-      setError("Run failed. Try again.");
+      const msg = (e as Error).message;
+      setError(msg);
+      toast.error(msg);
+      await refresh();
     } finally {
       setLoading(false);
     }
@@ -85,7 +131,7 @@ function ToolDetail() {
           <Tabs defaultValue="output">
             <TabsList>
               <TabsTrigger value="output"><Sparkles className="h-3.5 w-3.5 mr-1.5" /> Output</TabsTrigger>
-              <TabsTrigger value="history"><History className="h-3.5 w-3.5 mr-1.5" /> History</TabsTrigger>
+              <TabsTrigger value="history"><History className="h-3.5 w-3.5 mr-1.5" /> History {history.length > 0 && `(${history.length})`}</TabsTrigger>
             </TabsList>
             <TabsContent value="output" className="mt-3">
               <div className="nova-card p-5 min-h-[320px]">
@@ -98,7 +144,10 @@ function ToolDetail() {
                   </div>
                 )}
                 {error && !loading && (
-                  <p className="text-sm text-destructive">{error}</p>
+                  <div className="text-sm">
+                    <p className="text-destructive font-medium">Run failed</p>
+                    <p className="text-muted-foreground mt-1">{error}</p>
+                  </div>
                 )}
                 {!loading && !output && !error && (
                   <EmptyState
@@ -109,18 +158,51 @@ function ToolDetail() {
                 )}
                 {!loading && output && (
                   <>
+                    {meta && (
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
+                        {meta.provider} · {meta.model}
+                      </p>
+                    )}
                     <pre className="text-sm whitespace-pre-wrap font-sans leading-relaxed">{output}</pre>
                     <div className="mt-4 flex items-center gap-2">
-                      <Button size="sm" variant="outline"><Save className="h-3.5 w-3.5 mr-1.5" /> Save to Assets</Button>
-                      <Button size="sm" variant="ghost"><Download className="h-3.5 w-3.5 mr-1.5" /> Export</Button>
+                      <Button size="sm" variant="outline" disabled><Save className="h-3.5 w-3.5 mr-1.5" /> Save to Assets</Button>
+                      <Button size="sm" variant="ghost" onClick={() => navigator.clipboard.writeText(output)}>
+                        <Download className="h-3.5 w-3.5 mr-1.5" /> Copy
+                      </Button>
                     </div>
                   </>
                 )}
               </div>
             </TabsContent>
             <TabsContent value="history" className="mt-3">
-              <EmptyState icon={History} title="No runs yet" description="Your past runs will appear here." />
-              {/* TODO: list previous runs from Supabase tool_runs */}
+              {history.length === 0 ? (
+                <EmptyState icon={History} title="No runs yet" description="Your past runs will appear here." />
+              ) : (
+                <ul className="space-y-2">
+                  {history.map((r) => (
+                    <li key={r.id} className="nova-card p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <StatusPill tone={r.status === "succeeded" ? "success" : r.status === "failed" ? "warning" : "muted"}>
+                          {r.status}
+                        </StatusPill>
+                        <span className="text-[10px] text-muted-foreground">
+                          {new Date(r.created_at).toLocaleString()} {r.provider ? `· ${r.provider}/${r.model}` : ""}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{r.input}</p>
+                      {r.output && (
+                        <button
+                          onClick={() => { setOutput(r.output); setMeta({ provider: r.provider ?? undefined, model: r.model ?? undefined }); setError(null); }}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          Load output
+                        </button>
+                      )}
+                      {r.error && <p className="text-xs text-destructive">{r.error}</p>}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </TabsContent>
           </Tabs>
         </div>
