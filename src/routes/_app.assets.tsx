@@ -4,36 +4,68 @@ import { StatusPill } from "@/components/app/StatusPill";
 import { EmptyState } from "@/components/app/EmptyState";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Download, FolderOpen, FileText } from "lucide-react";
-import { useState } from "react";
+import { Search, Trash2, FolderOpen, FileText, Eye } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { listAssets, deleteAsset } from "@/lib/assets.functions";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_app/assets")({
   component: AssetsPage,
 });
 
-interface Asset { id: string; name: string; type: "Offer"|"Script"|"Proposal"|"Campaign"|"Content"|"Workflow"; created: string; }
+type AssetType = "offer"|"script"|"proposal"|"campaign"|"content"|"workflow"|"other";
+interface Asset {
+  id: string;
+  name: string;
+  type: AssetType;
+  body: string;
+  tags: string[];
+  source_run_id: string | null;
+  created_at: string;
+}
 
-const ASSETS: Asset[] = [
-  { id: "1", name: "B2B Agency Offer v2", type: "Offer", created: "Today" },
-  { id: "2", name: "Cold Email — SaaS founders", type: "Campaign", created: "Yesterday" },
-  { id: "3", name: "Discovery Call Script", type: "Script", created: "3d ago" },
-];
-const TYPES = ["All","Offer","Script","Proposal","Campaign","Content","Workflow"] as const;
+const TYPES = ["all","offer","script","proposal","campaign","content","workflow","other"] as const;
 
 function AssetsPage() {
-  const [filter, setFilter] = useState<typeof TYPES[number]>("All");
+  const { workspace } = useWorkspace();
+  const list = useServerFn(listAssets);
+  const del = useServerFn(deleteAsset);
+
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [filter, setFilter] = useState<typeof TYPES[number]>("all");
   const [q, setQ] = useState("");
-  const filtered = ASSETS.filter(a =>
-    (filter === "All" || a.type === filter) &&
+  const [loading, setLoading] = useState(true);
+  const [preview, setPreview] = useState<Asset | null>(null);
+
+  const refresh = useCallback(async () => {
+    try {
+      const { assets } = await list({ data: { workspaceId: workspace.id } });
+      setAssets(assets as Asset[]);
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setLoading(false); }
+  }, [list, workspace.id]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const filtered = assets.filter(a =>
+    (filter === "all" || a.type === filter) &&
     a.name.toLowerCase().includes(q.toLowerCase())
   );
+
+  const handleDelete = async (id: string) => {
+    try { await del({ data: { id } }); setAssets((xs) => xs.filter(x => x.id !== id)); toast.success("Asset deleted"); }
+    catch (e) { toast.error((e as Error).message); }
+  };
 
   return (
     <>
       <PageHeader
         eyebrow="Assets"
         title="Everything you've generated."
-        description="Search, filter, and reuse your offers, scripts, proposals, and campaigns."
+        description="Search, filter, and reuse outputs you've saved from LaunchPad tools."
       />
 
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -44,15 +76,21 @@ function AssetsPage() {
         <div className="flex flex-wrap gap-1.5">
           {TYPES.map((t) => (
             <button key={t} onClick={()=>setFilter(t)}
-              className={`text-xs rounded-full border px-3 py-1.5 transition-colors ${
+              className={`text-xs rounded-full border px-3 py-1.5 capitalize transition-colors ${
                 filter === t ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:text-foreground"
               }`}>{t}</button>
           ))}
         </div>
       </div>
 
-      {filtered.length === 0 ? (
-        <EmptyState icon={FolderOpen} title="No assets yet" description="Run a LaunchPad tool to generate your first asset." />
+      {loading ? (
+        <div className="nova-card p-8 text-center text-sm text-muted-foreground">Loading…</div>
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          icon={FolderOpen}
+          title={assets.length === 0 ? "No assets yet" : "Nothing matches"}
+          description={assets.length === 0 ? "Run a LaunchPad tool and click Save to Assets." : "Try a different filter or search."}
+        />
       ) : (
         <div className="nova-card overflow-hidden">
           <ul className="divide-y divide-border">
@@ -64,19 +102,26 @@ function AssetsPage() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{a.name}</p>
-                    <p className="text-xs text-muted-foreground">{a.created}</p>
+                    <p className="text-xs text-muted-foreground">{new Date(a.created_at).toLocaleString()}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <StatusPill tone="muted" dot={false}>{a.type}</StatusPill>
-                  <Button size="sm" variant="ghost"><Download className="h-3.5 w-3.5" /></Button>
+                  <Button size="sm" variant="ghost" onClick={() => setPreview(a)}><Eye className="h-3.5 w-3.5" /></Button>
+                  <Button size="sm" variant="ghost" onClick={() => handleDelete(a.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                 </div>
               </li>
             ))}
           </ul>
         </div>
       )}
-      {/* TODO: load from Supabase generated_assets */}
+
+      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-auto">
+          <DialogHeader><DialogTitle>{preview?.name}</DialogTitle></DialogHeader>
+          <pre className="text-sm whitespace-pre-wrap font-sans leading-relaxed">{preview?.body}</pre>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

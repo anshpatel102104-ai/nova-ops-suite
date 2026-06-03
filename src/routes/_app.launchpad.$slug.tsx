@@ -12,7 +12,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { runTool, listToolRuns } from "@/lib/tool-runs.functions";
+import { createAsset } from "@/lib/assets.functions";
 import { useWorkspace } from "@/hooks/use-workspace";
+
+const TOOL_TO_ASSET_TYPE: Record<string, "offer"|"script"|"proposal"|"campaign"|"content"|"workflow"|"other"> = {
+  "offer-builder":"offer","sales-script":"script","cold-email":"campaign","pitch-generator":"proposal",
+  "messaging-angles":"content","landing-copy":"content","lead-magnet":"content","content-strategy":"content",
+  "sop-builder":"workflow","automation-planner":"workflow","agent-prompt-builder":"workflow",
+};
 
 export const Route = createFileRoute("/_app/launchpad/$slug")({
   component: ToolDetail,
@@ -38,11 +45,14 @@ function ToolDetail() {
 
   const runFn = useServerFn(runTool);
   const listFn = useServerFn(listToolRuns);
+  const saveFn = useServerFn(createAsset);
 
   const [input, setInput] = useState("");
   const [output, setOutput] = useState<string | null>(null);
   const [meta, setMeta] = useState<{ provider?: string; model?: string } | null>(null);
+  const [lastRunId, setLastRunId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<RunRow[]>([]);
 
@@ -52,7 +62,6 @@ function ToolDetail() {
       const { runs } = await listFn({ data: { workspaceId: workspace.id, toolSlug: tool.slug } });
       setHistory(runs as RunRow[]);
     } catch (e) {
-      // ignore — table may be cold; surface only on user-driven errors
       console.error(e);
     }
   }, [listFn, tool, workspace.id]);
@@ -72,7 +81,7 @@ function ToolDetail() {
 
   const run = async () => {
     if (!input.trim()) return;
-    setLoading(true); setError(null); setOutput(null); setMeta(null);
+    setLoading(true); setError(null); setOutput(null); setMeta(null); setLastRunId(null);
     try {
       const res = await runFn({
         data: {
@@ -84,6 +93,7 @@ function ToolDetail() {
       });
       setOutput(res.output);
       setMeta({ provider: res.provider, model: res.model });
+      setLastRunId(res.runId);
       await refresh();
     } catch (e) {
       const msg = (e as Error).message;
@@ -92,6 +102,27 @@ function ToolDetail() {
       await refresh();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveAsAsset = async () => {
+    if (!output) return;
+    setSaving(true);
+    try {
+      await saveFn({
+        data: {
+          workspaceId: workspace.id,
+          name: `${tool.name} — ${new Date().toLocaleString()}`,
+          type: TOOL_TO_ASSET_TYPE[tool.slug] ?? "other",
+          body: output,
+          sourceRunId: lastRunId ?? undefined,
+        },
+      });
+      toast.success("Saved to Assets");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -165,7 +196,7 @@ function ToolDetail() {
                     )}
                     <pre className="text-sm whitespace-pre-wrap font-sans leading-relaxed">{output}</pre>
                     <div className="mt-4 flex items-center gap-2">
-                      <Button size="sm" variant="outline" disabled><Save className="h-3.5 w-3.5 mr-1.5" /> Save to Assets</Button>
+                      <Button size="sm" variant="outline" disabled={saving} onClick={saveAsAsset}><Save className="h-3.5 w-3.5 mr-1.5" /> {saving ? "Saving…" : "Save to Assets"}</Button>
                       <Button size="sm" variant="ghost" onClick={() => navigator.clipboard.writeText(output)}>
                         <Download className="h-3.5 w-3.5 mr-1.5" /> Copy
                       </Button>

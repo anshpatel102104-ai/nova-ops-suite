@@ -14,6 +14,101 @@ export type Database = {
   }
   public: {
     Tables: {
+      assets: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          name: string
+          source_run_id: string | null
+          tags: string[]
+          type: Database["public"]["Enums"]["asset_type"]
+          updated_at: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          name: string
+          source_run_id?: string | null
+          tags?: string[]
+          type?: Database["public"]["Enums"]["asset_type"]
+          updated_at?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          name?: string
+          source_run_id?: string | null
+          tags?: string[]
+          type?: Database["public"]["Enums"]["asset_type"]
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assets_source_run_id_fkey"
+            columns: ["source_run_id"]
+            isOneToOne: false
+            referencedRelation: "tool_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assets_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nova_system_configs: {
+        Row: {
+          active: boolean
+          config: Json
+          created_at: string
+          id: string
+          last_run_at: string | null
+          system_slug: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          active?: boolean
+          config?: Json
+          created_at?: string
+          id?: string
+          last_run_at?: string | null
+          system_slug: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          active?: boolean
+          config?: Json
+          created_at?: string
+          id?: string
+          last_run_at?: string | null
+          system_slug?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nova_system_configs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -273,6 +368,14 @@ export type Database = {
     Enums: {
       ai_provider: "anthropic" | "openai"
       app_role: "admin" | "moderator" | "user"
+      asset_type:
+        | "offer"
+        | "script"
+        | "proposal"
+        | "campaign"
+        | "content"
+        | "workflow"
+        | "other"
       tool_run_status: "pending" | "running" | "succeeded" | "failed"
       workspace_plan: "starter" | "launch" | "scale" | "enterprise"
       workspace_role: "owner" | "admin" | "member"
@@ -405,6 +508,15 @@ export const Constants = {
     Enums: {
       ai_provider: ["anthropic", "openai"],
       app_role: ["admin", "moderator", "user"],
+      asset_type: [
+        "offer",
+        "script",
+        "proposal",
+        "campaign",
+        "content",
+        "workflow",
+        "other",
+      ],
       tool_run_status: ["pending", "running", "succeeded", "failed"],
       workspace_plan: ["starter", "launch", "scale", "enterprise"],
       workspace_role: ["owner", "admin", "member"],
