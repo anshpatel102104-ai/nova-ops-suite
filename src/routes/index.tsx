@@ -154,7 +154,7 @@ function PricingTeaser() {
           <p className="text-[11px] font-medium uppercase tracking-wider text-primary mb-2">Pricing</p>
           <h2 className="text-3xl font-semibold tracking-tight">Pick a tier. Grow into the next.</h2>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {PLAN_ORDER.map((p) => {
             const plan = PLANS[p];
             const featured = p === "pro";
