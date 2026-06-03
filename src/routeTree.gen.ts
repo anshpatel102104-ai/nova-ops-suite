@@ -32,6 +32,7 @@ import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as AppActivityRouteImport } from './routes/_app.activity'
 import { Route as AppNovaOsSlugRouteImport } from './routes/_app.nova-os.$slug'
 import { Route as AppLaunchpadSlugRouteImport } from './routes/_app.launchpad.$slug'
+import { Route as AppInviteTokenRouteImport } from './routes/_app.invite.$token'
 
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
@@ -146,6 +147,11 @@ const AppLaunchpadSlugRoute = AppLaunchpadSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => AppLaunchpadRoute,
 } as any)
+const AppInviteTokenRoute = AppInviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -167,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/signup': typeof AuthSignupRoute
+  '/invite/$token': typeof AppInviteTokenRoute
   '/launchpad/$slug': typeof AppLaunchpadSlugRoute
   '/nova-os/$slug': typeof AppNovaOsSlugRoute
 }
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/signup': typeof AuthSignupRoute
+  '/invite/$token': typeof AppInviteTokenRoute
   '/launchpad/$slug': typeof AppLaunchpadSlugRoute
   '/nova-os/$slug': typeof AppNovaOsSlugRoute
 }
@@ -216,6 +224,7 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/_auth/signup': typeof AuthSignupRoute
+  '/_app/invite/$token': typeof AppInviteTokenRoute
   '/_app/launchpad/$slug': typeof AppLaunchpadSlugRoute
   '/_app/nova-os/$slug': typeof AppNovaOsSlugRoute
 }
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/signup'
+    | '/invite/$token'
     | '/launchpad/$slug'
     | '/nova-os/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/signup'
+    | '/invite/$token'
     | '/launchpad/$slug'
     | '/nova-os/$slug'
   id:
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/reset-password'
     | '/_auth/signup'
+    | '/_app/invite/$token'
     | '/_app/launchpad/$slug'
     | '/_app/nova-os/$slug'
   fileRoutesById: FileRoutesById
@@ -464,6 +476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLaunchpadSlugRouteImport
       parentRoute: typeof AppLaunchpadRoute
     }
+    '/_app/invite/$token': {
+      id: '/_app/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/invite/$token'
+      preLoaderRoute: typeof AppInviteTokenRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -503,6 +522,7 @@ interface AppRouteChildren {
   AppNovaOsRoute: typeof AppNovaOsRouteWithChildren
   AppOnboardingRoute: typeof AppOnboardingRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppInviteTokenRoute: typeof AppInviteTokenRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -517,6 +537,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppNovaOsRoute: AppNovaOsRouteWithChildren,
   AppOnboardingRoute: AppOnboardingRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppInviteTokenRoute: AppInviteTokenRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
