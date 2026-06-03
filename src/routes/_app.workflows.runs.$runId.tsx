@@ -51,8 +51,9 @@ function RunDetail() {
       try {
         const { run } = await getFn({ data: { id: runId } });
         if (cancelled) return;
-        setRun(run as Run);
-        if ((run as Run).status === "running" || (run as Run).status === "pending") {
+        const typed = run as unknown as Run;
+        setRun(typed);
+        if (typed.status === "running" || typed.status === "pending") {
           timer.current = window.setTimeout(tick, 1500);
         }
       } catch (e) {

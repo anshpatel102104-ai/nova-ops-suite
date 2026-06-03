@@ -40,7 +40,7 @@ function WorkflowsPage() {
   const refresh = async () => {
     try {
       const { workflows } = await listFn({ data: { workspaceId: workspace.id } });
-      setItems(workflows as Wf[]);
+      setItems(workflows as unknown as Wf[]);
     } catch (e) {
       toast.error((e as Error).message);
     }
