@@ -58,14 +58,9 @@ function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="team" className="mt-4">
-          <Section title="Team & workspace">
-            <p className="text-sm text-muted-foreground">Invite teammates to collaborate in your workspace.</p>
-            <div className="flex gap-2 mt-3">
-              <Input placeholder="teammate@company.com" />
-              <Button>Send invite</Button>
-            </div>
-          </Section>
+          <TeamTab workspaceId={workspace.id} />
         </TabsContent>
+
 
         <TabsContent value="ai" className="mt-4">
           <AIProvidersTab workspaceId={workspace.id} />
