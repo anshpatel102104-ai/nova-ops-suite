@@ -55,6 +55,23 @@ export const createWorkflow = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    // Enforce custom-playbook cap.
+    const { planFor } = await import("./plan");
+    const { data: ws } = await supabase
+      .from("workspaces").select("plan").eq("id", data.workspaceId).maybeSingle();
+    const limit = planFor(ws?.plan).limits.custom_playbooks;
+    if (limit >= 0) {
+      const { count } = await supabase
+        .from("workflows")
+        .select("id", { count: "exact", head: true })
+        .eq("workspace_id", data.workspaceId)
+        .eq("is_template", false);
+      if ((count ?? 0) >= limit) {
+        throw new Error(`Custom playbook limit reached (${limit}). Upgrade your plan to create more.`);
+      }
+    }
+
     const { data: row, error } = await supabase
       .from("workflows")
       .insert({
