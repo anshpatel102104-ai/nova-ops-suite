@@ -139,9 +139,14 @@ function AgentsPage() {
                   <span className="text-[11px] text-muted-foreground px-1.5 py-0.5">+{tools.length - 4}</span>
                 )}
               </div>
-              <Button asChild size="sm" variant="outline" className="mt-4 w-fit">
-                <Link to="/app/launchpad">Open mentor <ArrowRight className="h-3.5 w-3.5 ml-1" /></Link>
-              </Button>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/app/launchpad">Open mentor <ArrowRight className="h-3.5 w-3.5 ml-1" /></Link>
+                </Button>
+                <Button asChild size="sm" variant="ghost">
+                  <Link to="/app/workflows">Playbooks</Link>
+                </Button>
+              </div>
             </div>
           );
         })}
