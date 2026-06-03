@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Rocket, Cpu, FolderOpen, Activity,
+  LayoutDashboard, Rocket, FolderOpen, Activity,
   Plug, CreditCard, Settings, Shield, Sparkles, ChevronRight, Bot, GitBranch,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
