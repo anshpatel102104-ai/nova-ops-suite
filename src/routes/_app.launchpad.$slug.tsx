@@ -196,7 +196,7 @@ function ToolDetail() {
                     )}
                     <pre className="text-sm whitespace-pre-wrap font-sans leading-relaxed">{output}</pre>
                     <div className="mt-4 flex items-center gap-2">
-                      <Button size="sm" variant="outline" disabled><Save className="h-3.5 w-3.5 mr-1.5" /> Save to Assets</Button>
+                      <Button size="sm" variant="outline" disabled={saving} onClick={saveAsAsset}><Save className="h-3.5 w-3.5 mr-1.5" /> {saving ? "Saving…" : "Save to Assets"}</Button>
                       <Button size="sm" variant="ghost" onClick={() => navigator.clipboard.writeText(output)}>
                         <Download className="h-3.5 w-3.5 mr-1.5" /> Copy
                       </Button>
