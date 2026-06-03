@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { Search, Bell, ChevronDown, Menu, LogOut, User, Building2 } from "lucide-react";
+import { Search, ChevronDown, Menu, LogOut, User, Building2 } from "lucide-react";
+import { NotificationBell } from "./NotificationBell";
+import { CommandPalette } from "./CommandPalette";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
@@ -28,6 +30,7 @@ export function AppTopbar() {
 
   return (
     <header className="sticky top-0 z-30 h-12 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+      <CommandPalette />
       <div className="flex h-full items-center gap-2 px-3 md:px-4">
         {/* Mobile nav */}
         <Sheet open={open} onOpenChange={setOpen}>
@@ -60,20 +63,17 @@ export function AppTopbar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Search */}
+        {/* Search → opens command palette */}
         <div className="ml-2 hidden md:flex items-center gap-2 flex-1 max-w-md">
-          <div className="relative w-full">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search tools, systems, assets…"
-              className="pl-8 h-9 bg-surface border-border"
-              onFocus={(e) => e.currentTarget.blur()}
-              readOnly
-            />
-            <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5">
-              ⌘K
-            </kbd>
-          </div>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
+            className="group relative w-full flex items-center h-9 rounded-md bg-surface border border-border hover:border-primary/40 transition-colors px-2.5 text-left"
+          >
+            <Search className="h-4 w-4 text-muted-foreground" />
+            <span className="ml-2 text-sm text-muted-foreground">Search tools, systems, assets…</span>
+            <kbd className="ml-auto text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5">⌘K</kbd>
+          </button>
         </div>
 
         <div className="flex-1 md:hidden" />
@@ -94,9 +94,7 @@ export function AppTopbar() {
         </Link>
 
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="h-9 w-9">
-          <Bell className="h-4 w-4" />
-        </Button>
+        <NotificationBell />
 
         {/* Profile */}
         <DropdownMenu>

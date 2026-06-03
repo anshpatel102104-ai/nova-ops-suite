@@ -332,6 +332,15 @@ export const runWorkflow = createServerFn({ method: "POST" })
       total_duration_ms: Date.now() - started,
     }).eq("id", runId);
 
+    await supabase.from("notifications").insert({
+      workspace_id: data.workspaceId,
+      user_id: userId,
+      type: "workflow_succeeded",
+      title: `Playbook completed: ${wf.name}`,
+      body: `${steps.length} step${steps.length === 1 ? "" : "s"} ran in ${Math.round((Date.now() - started) / 1000)}s.`,
+      link: `/app/workflows/runs/${runId}`,
+    });
+
     return { runId };
   });
 
