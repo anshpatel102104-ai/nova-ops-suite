@@ -528,7 +528,13 @@ export type Database = {
       invitation_status: "pending" | "accepted" | "revoked" | "expired"
       tool_run_status: "pending" | "running" | "succeeded" | "failed"
       workflow_run_status: "pending" | "running" | "succeeded" | "failed"
-      workspace_plan: "starter" | "launch" | "scale" | "enterprise"
+      workspace_plan:
+        | "starter"
+        | "launch"
+        | "scale"
+        | "enterprise"
+        | "pro"
+        | "business"
       workspace_role: "owner" | "admin" | "member"
     }
     CompositeTypes: {
@@ -671,7 +677,14 @@ export const Constants = {
       invitation_status: ["pending", "accepted", "revoked", "expired"],
       tool_run_status: ["pending", "running", "succeeded", "failed"],
       workflow_run_status: ["pending", "running", "succeeded", "failed"],
-      workspace_plan: ["starter", "launch", "scale", "enterprise"],
+      workspace_plan: [
+        "starter",
+        "launch",
+        "scale",
+        "enterprise",
+        "pro",
+        "business",
+      ],
       workspace_role: ["owner", "admin", "member"],
     },
   },

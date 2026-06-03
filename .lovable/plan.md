@@ -1,47 +1,37 @@
-## Phase 7 — Agents & multi-step workflows
+# Phase 8 — Billing, plans & usage limits
 
-Turn the existing single-shot LaunchPad tools into chainable workflows that can be saved, re-run, and executed in the background. Agents become the "owners" of workflows so each one feels like a true mentor running a real playbook.
+Scope: introduce plan tiers with monthly usage limits enforced server-side. No real payment provider yet — upgrades happen via a self-serve "switch plan" UI that records the choice. This sets the foundation; Stripe/Paddle wiring can come in a later phase.
 
-### What we ship
+## Plans
 
-1. **Workflow Builder** — a new page where the user assembles 2–10 steps. Each step is a tool from the existing catalog, with an inline prompt template that can reference outputs of previous steps via `{{step_N}}` placeholders.
-2. **Workflow Runner** — server-side sequential execution of every step. Each step writes a `tool_runs` row (so the existing dashboard/activity feed lights up for free), and the full run is tracked end-to-end with status, durations, and per-step outputs.
-3. **Workflow Library** — list of saved workflows per workspace, plus 6 built-in starter templates aligned to each agent (Strategos: "Idea → Pitch → GTM", Compass: "ICP → Offer → Messaging", Scribe: "Landing → Content plan → Lead magnet", Closer: "Sales script → Cold email sequence", Forge: "SOP → Automation plan", Nova: "Full launch sprint").
-4. **Agents page wiring** — each agent card shows its workflows and a one-click "Run playbook" button.
-5. **Run detail view** — modal/page showing live step-by-step progress, with "Save step output to Assets" on each completed step.
+| Plan | Monthly tool runs | Monthly workflow runs | Members | Custom playbooks |
+|------|---|---|---|---|
+| starter (default) | 50 | 10 | 2 | 3 |
+| pro | 1,000 | 200 | 10 | unlimited |
+| business | 10,000 | 2,000 | unlimited | unlimited |
 
-### Database
+## Database
 
-Two new tables:
+- Reuse existing `workspaces.plan` enum (already `starter`); add `pro`, `business` values.
+- New table `workspace_usage`: `workspace_id`, `period_start` (date, first of month), `tool_runs`, `workflow_runs`. Unique on (workspace_id, period_start). RLS: members read, service_role writes.
+- DB function `increment_usage(_workspace_id, _kind)` (security definer) — upserts current-month row and increments counter. Called from `runTool` and `runWorkflow`.
+- DB function `get_plan_limits(_plan)` returns jsonb of caps.
+- DB function `check_and_increment_usage(_workspace_id, _kind)` — atomically checks the cap and increments; returns `{ allowed, usage, limit }`. Used by server fns before executing.
 
-- `workflows` — `name`, `description`, `agent_slug`, `steps` (jsonb array of `{tool_slug, prompt_template, label}`), `is_template` (boolean), `workspace_id`, `created_by`.
-- `workflow_runs` — `workflow_id`, `workspace_id`, `user_id`, `input` (initial user input), `status` (`pending|running|succeeded|failed`), `current_step`, `steps` (jsonb array of `{tool_slug, status, output, error, run_id, duration_ms}`), `total_duration_ms`, `error`.
+## Server functions (`src/lib/billing.functions.ts`)
 
-Both tables get standard workspace-member RLS + GRANTs matching the existing pattern (member read/insert, owner update/delete).
+- `getBillingOverview()` → current plan, limits, current-period usage, member count, custom playbook count.
+- `setWorkspacePlan({ plan })` (owner only) → updates `workspaces.plan`. No payment.
+- Wire `check_and_increment_usage` into existing `runTool` and `runWorkflow`; throw a friendly error when over cap.
+- Enforce member cap in `inviteMember` and custom-playbook cap in `createWorkflow`.
 
-### Server functions (`src/lib/workflows.functions.ts`)
+## UI
 
-- `listWorkflows`, `getWorkflow`, `createWorkflow`, `updateWorkflow`, `deleteWorkflow`
-- `runWorkflow({ workflowId, input })` — orchestrator that loops through steps, calls the existing `runTool` AI handler per step with `{{step_N}}` substituted, writes a `tool_runs` row per step (so dashboard stats stay coherent), and updates the `workflow_runs` row after each step.
-- `listWorkflowRuns`, `getWorkflowRun` — for history and live polling.
+- New route `/_app.billing.tsx`: current plan card, usage bars (tool runs / workflow runs / members / playbooks), plan comparison grid with "Switch to X" buttons (owner only).
+- Sidebar: add "Billing" entry under workspace section.
+- Settings page: link to Billing.
+- When a run is blocked by cap, surface toast "Monthly limit reached — upgrade plan" with link to billing.
 
-### UI changes
+## Out of scope
 
-- New routes:
-  - `src/routes/_app.workflows.tsx` — library + create button
-  - `src/routes/_app.workflows.$id.tsx` — editor (drag/reorder steps, pick tool per step, edit prompt template with placeholder hints)
-  - `src/routes/_app.workflows.$id.run.tsx` — run view with live polling and per-step output cards
-- `src/routes/_app.agents.tsx` — add "Playbooks" section per agent linking to workflows filtered by `agent_slug`.
-- Sidebar nav: add "Workflows" entry between LaunchPad and Nova OS.
-
-### Out of scope (deferred)
-
-- Scheduled/triggered runs (cron, webhook triggers) — keeping this phase focused on manual + chained execution. Can be Phase 8 alongside notifications.
-- Branching/conditional steps — sequential only for now.
-- Streaming partial output mid-step — each step completes atomically.
-
-### Technical notes
-
-- Reuse the existing `runTool` AI logic from `src/lib/ai.functions.ts` rather than duplicating provider/model resolution.
-- Workflow execution runs inside a single `createServerFn` call. With ~3–6 steps at a few seconds each this fits well within the Worker request budget; no queue needed for v1.
-- Templates seeded via a migration that inserts rows with `is_template = true` and `workspace_id = null` (visible to all workspaces via an additional RLS policy `is_template = true`).
+Real Stripe/Paddle checkout, prorated billing, annual plans, invoices, per-seat pricing, hard member-cap enforcement on existing members (only enforced on new invites).
