@@ -34,12 +34,12 @@ export const upsertSystemConfig = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const payload: Record<string, unknown> = {
+    const payload = {
       workspace_id: data.workspaceId,
       system_slug: data.systemSlug,
+      ...(data.active !== undefined ? { active: data.active } : {}),
+      ...(data.config !== undefined ? { config: data.config as never } : {}),
     };
-    if (data.active !== undefined) payload.active = data.active;
-    if (data.config !== undefined) payload.config = data.config;
 
     const { data: row, error } = await supabase
       .from("nova_system_configs")
