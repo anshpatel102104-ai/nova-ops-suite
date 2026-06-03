@@ -136,6 +136,18 @@ export const runWorkflow = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const started = Date.now();
 
+    // Enforce monthly workflow-run cap atomically.
+    const { data: usage, error: usageErr } = await supabase.rpc("check_and_increment_usage", {
+      _workspace_id: data.workspaceId,
+      _kind: "workflow_runs",
+    });
+    if (usageErr) throw new Error(usageErr.message);
+    const u = usage as { allowed: boolean; usage: number; limit: number } | null;
+    if (u && !u.allowed) {
+      throw new Error(`Monthly workflow-run limit reached (${u.usage}/${u.limit}). Upgrade your plan to continue.`);
+    }
+
+
     // Load workflow (template or own)
     const { data: wf, error: wfErr } = await supabase
       .from("workflows")
