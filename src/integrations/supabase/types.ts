@@ -219,6 +219,90 @@ export type Database = {
         }
         Relationships: []
       }
+      workflow_runs: {
+        Row: {
+          created_at: string
+          current_step: number
+          error: string | null
+          id: string
+          input: string
+          status: Database["public"]["Enums"]["workflow_run_status"]
+          steps: Json
+          total_duration_ms: number | null
+          updated_at: string
+          user_id: string
+          workflow_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_step?: number
+          error?: string | null
+          id?: string
+          input?: string
+          status?: Database["public"]["Enums"]["workflow_run_status"]
+          steps?: Json
+          total_duration_ms?: number | null
+          updated_at?: string
+          user_id: string
+          workflow_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          current_step?: number
+          error?: string | null
+          id?: string
+          input?: string
+          status?: Database["public"]["Enums"]["workflow_run_status"]
+          steps?: Json
+          total_duration_ms?: number | null
+          updated_at?: string
+          user_id?: string
+          workflow_id?: string
+          workspace_id?: string
+        }
+        Relationships: []
+      }
+      workflows: {
+        Row: {
+          agent_slug: string
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          is_template: boolean
+          name: string
+          steps: Json
+          updated_at: string
+          workspace_id: string | null
+        }
+        Insert: {
+          agent_slug?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          is_template?: boolean
+          name: string
+          steps?: Json
+          updated_at?: string
+          workspace_id?: string | null
+        }
+        Update: {
+          agent_slug?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          is_template?: boolean
+          name?: string
+          steps?: Json
+          updated_at?: string
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
       workspace_invitations: {
         Row: {
           accepted_at: string | null
@@ -443,6 +527,7 @@ export type Database = {
         | "other"
       invitation_status: "pending" | "accepted" | "revoked" | "expired"
       tool_run_status: "pending" | "running" | "succeeded" | "failed"
+      workflow_run_status: "pending" | "running" | "succeeded" | "failed"
       workspace_plan: "starter" | "launch" | "scale" | "enterprise"
       workspace_role: "owner" | "admin" | "member"
     }
@@ -585,6 +670,7 @@ export const Constants = {
       ],
       invitation_status: ["pending", "accepted", "revoked", "expired"],
       tool_run_status: ["pending", "running", "succeeded", "failed"],
+      workflow_run_status: ["pending", "running", "succeeded", "failed"],
       workspace_plan: ["starter", "launch", "scale", "enterprise"],
       workspace_role: ["owner", "admin", "member"],
     },

@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Rocket, Cpu, FolderOpen, Activity,
-  Plug, CreditCard, Settings, Shield, Sparkles, ChevronRight, Bot,
+  Plug, CreditCard, Settings, Shield, Sparkles, ChevronRight, Bot, GitBranch,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/brand/Logo";
@@ -12,6 +12,7 @@ const NAV = [
   { to: "/app/dashboard", label: "Mission Control", icon: LayoutDashboard },
   { to: "/app/agents", label: "Agent Network", icon: Bot },
   { to: "/app/launchpad", label: "Founder Academy", icon: Rocket },
+  { to: "/app/workflows", label: "Workflows", icon: GitBranch },
   { to: "/app/nova-os", label: "Automation Hub", icon: Cpu },
   { to: "/app/assets", label: "Assets", icon: FolderOpen },
   { to: "/app/activity", label: "Activity", icon: Activity },

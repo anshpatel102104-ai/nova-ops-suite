@@ -19,6 +19,7 @@ import { Route as AuthResetPasswordRouteImport } from './routes/_auth.reset-pass
 import { Route as AuthLoginRouteImport } from './routes/_auth.login'
 import { Route as AuthInviteRouteImport } from './routes/_auth.invite'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth.forgot-password'
+import { Route as AppWorkflowsRouteImport } from './routes/_app.workflows'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppOnboardingRouteImport } from './routes/_app.onboarding'
 import { Route as AppNovaOsRouteImport } from './routes/_app.nova-os'
@@ -30,9 +31,11 @@ import { Route as AppAssetsRouteImport } from './routes/_app.assets'
 import { Route as AppAgentsRouteImport } from './routes/_app.agents'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as AppActivityRouteImport } from './routes/_app.activity'
+import { Route as AppWorkflowsIdRouteImport } from './routes/_app.workflows.$id'
 import { Route as AppNovaOsSlugRouteImport } from './routes/_app.nova-os.$slug'
 import { Route as AppLaunchpadSlugRouteImport } from './routes/_app.launchpad.$slug'
 import { Route as AppInviteTokenRouteImport } from './routes/_app.invite.$token'
+import { Route as AppWorkflowsRunsRunIdRouteImport } from './routes/_app.workflows.runs.$runId'
 
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
@@ -81,6 +84,11 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
   getParentRoute: () => AuthRoute,
+} as any)
+const AppWorkflowsRoute = AppWorkflowsRouteImport.update({
+  id: '/workflows',
+  path: '/workflows',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
@@ -137,6 +145,11 @@ const AppActivityRoute = AppActivityRouteImport.update({
   path: '/activity',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWorkflowsIdRoute = AppWorkflowsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppWorkflowsRoute,
+} as any)
 const AppNovaOsSlugRoute = AppNovaOsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -151,6 +164,11 @@ const AppInviteTokenRoute = AppInviteTokenRouteImport.update({
   id: '/invite/$token',
   path: '/invite/$token',
   getParentRoute: () => AppRoute,
+} as any)
+const AppWorkflowsRunsRunIdRoute = AppWorkflowsRunsRunIdRouteImport.update({
+  id: '/runs/$runId',
+  path: '/runs/$runId',
+  getParentRoute: () => AppWorkflowsRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -168,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/nova-os': typeof AppNovaOsRouteWithChildren
   '/onboarding': typeof AppOnboardingRoute
   '/settings': typeof AppSettingsRoute
+  '/workflows': typeof AppWorkflowsRouteWithChildren
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/invite': typeof AuthInviteRoute
   '/login': typeof AuthLoginRoute
@@ -176,6 +195,8 @@ export interface FileRoutesByFullPath {
   '/invite/$token': typeof AppInviteTokenRoute
   '/launchpad/$slug': typeof AppLaunchpadSlugRoute
   '/nova-os/$slug': typeof AppNovaOsSlugRoute
+  '/workflows/$id': typeof AppWorkflowsIdRoute
+  '/workflows/runs/$runId': typeof AppWorkflowsRunsRunIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -192,6 +213,7 @@ export interface FileRoutesByTo {
   '/nova-os': typeof AppNovaOsRouteWithChildren
   '/onboarding': typeof AppOnboardingRoute
   '/settings': typeof AppSettingsRoute
+  '/workflows': typeof AppWorkflowsRouteWithChildren
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/invite': typeof AuthInviteRoute
   '/login': typeof AuthLoginRoute
@@ -200,6 +222,8 @@ export interface FileRoutesByTo {
   '/invite/$token': typeof AppInviteTokenRoute
   '/launchpad/$slug': typeof AppLaunchpadSlugRoute
   '/nova-os/$slug': typeof AppNovaOsSlugRoute
+  '/workflows/$id': typeof AppWorkflowsIdRoute
+  '/workflows/runs/$runId': typeof AppWorkflowsRunsRunIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -219,6 +243,7 @@ export interface FileRoutesById {
   '/_app/nova-os': typeof AppNovaOsRouteWithChildren
   '/_app/onboarding': typeof AppOnboardingRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/_app/workflows': typeof AppWorkflowsRouteWithChildren
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
   '/_auth/invite': typeof AuthInviteRoute
   '/_auth/login': typeof AuthLoginRoute
@@ -227,6 +252,8 @@ export interface FileRoutesById {
   '/_app/invite/$token': typeof AppInviteTokenRoute
   '/_app/launchpad/$slug': typeof AppLaunchpadSlugRoute
   '/_app/nova-os/$slug': typeof AppNovaOsSlugRoute
+  '/_app/workflows/$id': typeof AppWorkflowsIdRoute
+  '/_app/workflows/runs/$runId': typeof AppWorkflowsRunsRunIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -245,6 +272,7 @@ export interface FileRouteTypes {
     | '/nova-os'
     | '/onboarding'
     | '/settings'
+    | '/workflows'
     | '/forgot-password'
     | '/invite'
     | '/login'
@@ -253,6 +281,8 @@ export interface FileRouteTypes {
     | '/invite/$token'
     | '/launchpad/$slug'
     | '/nova-os/$slug'
+    | '/workflows/$id'
+    | '/workflows/runs/$runId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -269,6 +299,7 @@ export interface FileRouteTypes {
     | '/nova-os'
     | '/onboarding'
     | '/settings'
+    | '/workflows'
     | '/forgot-password'
     | '/invite'
     | '/login'
@@ -277,6 +308,8 @@ export interface FileRouteTypes {
     | '/invite/$token'
     | '/launchpad/$slug'
     | '/nova-os/$slug'
+    | '/workflows/$id'
+    | '/workflows/runs/$runId'
   id:
     | '__root__'
     | '/'
@@ -295,6 +328,7 @@ export interface FileRouteTypes {
     | '/_app/nova-os'
     | '/_app/onboarding'
     | '/_app/settings'
+    | '/_app/workflows'
     | '/_auth/forgot-password'
     | '/_auth/invite'
     | '/_auth/login'
@@ -303,6 +337,8 @@ export interface FileRouteTypes {
     | '/_app/invite/$token'
     | '/_app/launchpad/$slug'
     | '/_app/nova-os/$slug'
+    | '/_app/workflows/$id'
+    | '/_app/workflows/runs/$runId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -385,6 +421,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_app/workflows': {
+      id: '/_app/workflows'
+      path: '/workflows'
+      fullPath: '/workflows'
+      preLoaderRoute: typeof AppWorkflowsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings': {
       id: '/_app/settings'
       path: '/settings'
@@ -462,6 +505,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppActivityRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/workflows/$id': {
+      id: '/_app/workflows/$id'
+      path: '/$id'
+      fullPath: '/workflows/$id'
+      preLoaderRoute: typeof AppWorkflowsIdRouteImport
+      parentRoute: typeof AppWorkflowsRoute
+    }
     '/_app/nova-os/$slug': {
       id: '/_app/nova-os/$slug'
       path: '/$slug'
@@ -482,6 +532,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/invite/$token'
       preLoaderRoute: typeof AppInviteTokenRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/_app/workflows/runs/$runId': {
+      id: '/_app/workflows/runs/$runId'
+      path: '/runs/$runId'
+      fullPath: '/workflows/runs/$runId'
+      preLoaderRoute: typeof AppWorkflowsRunsRunIdRouteImport
+      parentRoute: typeof AppWorkflowsRoute
     }
   }
 }
@@ -510,6 +567,20 @@ const AppNovaOsRouteWithChildren = AppNovaOsRoute._addFileChildren(
   AppNovaOsRouteChildren,
 )
 
+interface AppWorkflowsRouteChildren {
+  AppWorkflowsIdRoute: typeof AppWorkflowsIdRoute
+  AppWorkflowsRunsRunIdRoute: typeof AppWorkflowsRunsRunIdRoute
+}
+
+const AppWorkflowsRouteChildren: AppWorkflowsRouteChildren = {
+  AppWorkflowsIdRoute: AppWorkflowsIdRoute,
+  AppWorkflowsRunsRunIdRoute: AppWorkflowsRunsRunIdRoute,
+}
+
+const AppWorkflowsRouteWithChildren = AppWorkflowsRoute._addFileChildren(
+  AppWorkflowsRouteChildren,
+)
+
 interface AppRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
   AppAdminRoute: typeof AppAdminRoute
@@ -522,6 +593,7 @@ interface AppRouteChildren {
   AppNovaOsRoute: typeof AppNovaOsRouteWithChildren
   AppOnboardingRoute: typeof AppOnboardingRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppWorkflowsRoute: typeof AppWorkflowsRouteWithChildren
   AppInviteTokenRoute: typeof AppInviteTokenRoute
 }
 
@@ -537,6 +609,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppNovaOsRoute: AppNovaOsRouteWithChildren,
   AppOnboardingRoute: AppOnboardingRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppWorkflowsRoute: AppWorkflowsRouteWithChildren,
   AppInviteTokenRoute: AppInviteTokenRoute,
 }
 
