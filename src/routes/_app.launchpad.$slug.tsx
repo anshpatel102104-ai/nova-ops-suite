@@ -12,7 +12,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { runTool, listToolRuns } from "@/lib/tool-runs.functions";
+import { createAsset } from "@/lib/assets.functions";
 import { useWorkspace } from "@/hooks/use-workspace";
+
+const TOOL_TO_ASSET_TYPE: Record<string, "offer"|"script"|"proposal"|"campaign"|"content"|"workflow"|"other"> = {
+  "offer-builder":"offer","sales-script":"script","cold-email":"campaign","pitch-generator":"proposal",
+  "messaging-angles":"content","landing-copy":"content","lead-magnet":"content","content-strategy":"content",
+  "sop-builder":"workflow","automation-planner":"workflow","agent-prompt-builder":"workflow",
+};
 
 export const Route = createFileRoute("/_app/launchpad/$slug")({
   component: ToolDetail,
