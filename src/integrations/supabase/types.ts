@@ -94,9 +94,52 @@ export type Database = {
           },
         ]
       }
+      workspace_provider_keys: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          key_hint: string
+          provider: Database["public"]["Enums"]["ai_provider"]
+          updated_at: string
+          vault_secret_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          key_hint: string
+          provider: Database["public"]["Enums"]["ai_provider"]
+          updated_at?: string
+          vault_secret_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          key_hint?: string
+          provider?: Database["public"]["Enums"]["ai_provider"]
+          updated_at?: string
+          vault_secret_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_provider_keys_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspaces: {
         Row: {
           created_at: string
+          default_model: string | null
+          default_provider: Database["public"]["Enums"]["ai_provider"] | null
           id: string
           name: string
           owner_id: string
@@ -105,6 +148,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          default_model?: string | null
+          default_provider?: Database["public"]["Enums"]["ai_provider"] | null
           id?: string
           name: string
           owner_id: string
@@ -113,6 +158,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          default_model?: string | null
+          default_provider?: Database["public"]["Enums"]["ai_provider"] | null
           id?: string
           name?: string
           owner_id?: string
@@ -126,6 +173,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_provider_key: {
+        Args: {
+          _provider: Database["public"]["Enums"]["ai_provider"]
+          _workspace_id: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -141,8 +195,17 @@ export type Database = {
         Args: { _user_id: string; _workspace_id: string }
         Returns: boolean
       }
+      set_provider_key: {
+        Args: {
+          _plaintext: string
+          _provider: Database["public"]["Enums"]["ai_provider"]
+          _workspace_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
+      ai_provider: "anthropic" | "openai"
       app_role: "admin" | "moderator" | "user"
       workspace_plan: "starter" | "launch" | "scale" | "enterprise"
       workspace_role: "owner" | "admin" | "member"
@@ -273,6 +336,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      ai_provider: ["anthropic", "openai"],
       app_role: ["admin", "moderator", "user"],
       workspace_plan: ["starter", "launch", "scale", "enterprise"],
       workspace_role: ["owner", "admin", "member"],
